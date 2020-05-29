@@ -51,14 +51,14 @@ import (
 
 const (
 	// internal fd usage includes disk usage and transport usage.
-	// To read/write snapshot, snap pkg needs 1. In normal case, wal pkg needs
-	// at most 2 to read/lock/write WALs. One case that it needs to 2 is to
-	// read all logs after some snapshot index, which locates at the end of
-	// the second last and the head of the last. For purging, it needs to read
-	// directory, so it needs 1. For fd monitor, it needs 1.
-	// For transport, rafthttp builds two long-polling connections and at most
-	// four temporary connections with each member. There are at most 9 members
-	// in a cluster, so it should reserve 96.
+	// To read/write snapshot, snap pkg needs 1.
+	// In normal case, wal pkg needs at most 2 to read/lock/write WALs.
+	// One case that it needs to 2 is to read all logs after some snapshot index,
+	// which locates at the end of the second last and the head of the last.
+	// For purging, it needs to read directory, so it needs 1.
+	// For fd monitor, it needs 1.
+	// For transport, rafthttp builds two long-polling connections and at most four temporary connections with each member.
+	// There are at most 9 members in a cluster, so it should reserve 96.
 	// For the safety, we set the total reserved number to 150.
 	reservedInternalFDNum = 150
 )

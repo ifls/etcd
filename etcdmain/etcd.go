@@ -41,6 +41,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+//数据目录类型, 根据启动模式, 有不同
 type dirType string
 
 var (
@@ -104,6 +105,7 @@ func startEtcdOrProxyV2() {
 		)
 		switch which {
 		case dirMember:
+			// 启动节点
 			stopped, errc, err = startEtcd(&cfg.ec)
 		case dirProxy:
 			err = startProxy(cfg)
@@ -116,6 +118,7 @@ func startEtcdOrProxyV2() {
 	} else {
 		shouldProxy := cfg.isProxy()
 		if !shouldProxy {
+			//启动节点
 			stopped, errc, err = startEtcd(&cfg.ec)
 			if derr, ok := err.(*etcdserver.DiscoveryError); ok && derr.Err == v2discovery.ErrFullCluster {
 				if cfg.shouldFallbackToProxy() {
@@ -188,6 +191,7 @@ func startEtcdOrProxyV2() {
 		lg.Fatal("discovery failed", zap.Error(err))
 	}
 
+	//处理信号
 	osutil.HandleInterrupts(lg)
 
 	// At this point, the initialization of etcd is done.
@@ -197,6 +201,7 @@ func startEtcdOrProxyV2() {
 	// connections.
 	notifySystemd(lg)
 
+	//阻塞住
 	select {
 	case lerr := <-errc:
 		// fatal out on listener errors
@@ -207,7 +212,7 @@ func startEtcdOrProxyV2() {
 	osutil.Exit(0)
 }
 
-// startEtcd runs StartEtcd in addition to hooks needed for standalone etcd.
+// startEtcd runs StartEtcd in addition to除此之外 hooks needed for standalone etcd.
 func startEtcd(cfg *embed.Config) (<-chan struct{}, <-chan error, error) {
 	e, err := embed.StartEtcd(cfg)
 	if err != nil {
@@ -456,6 +461,7 @@ func identifyDataDirOrDie(lg *zap.Logger, dir string) dirType {
 
 func checkSupportArch() {
 	// TODO qualify arm64
+	//只允许这三种cpu指令集架构
 	if runtime.GOARCH == "amd64" || runtime.GOARCH == "ppc64le" || runtime.GOARCH == "s390x" {
 		return
 	}
