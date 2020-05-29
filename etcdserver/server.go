@@ -187,14 +187,14 @@ type Server interface {
 // EtcdServer is the production implementation of the Server interface
 type EtcdServer struct {
 	// inflightSnapshots holds count the number of snapshots currently inflight.
-	inflightSnapshots int64  // must use atomic operations to access; keep 64-bit aligned.
-	appliedIndex      uint64 // must use atomic operations to access; keep 64-bit aligned.
-	committedIndex    uint64 // must use atomic operations to access; keep 64-bit aligned.
-	term              uint64 // must use atomic operations to access; keep 64-bit aligned.
+	inflightSnapshots int64  // 当前正在发生 snapshot数量 must use atomic operations to access; keep 64-bit aligned.
+	appliedIndex      uint64 // 已经应用的 日志index must use atomic operations to access; keep 64-bit aligned.
+	committedIndex    uint64 // 已经提交的日志index must use atomic operations to access; keep 64-bit aligned.
+	term              uint64 //  must use atomic operations to access; keep 64-bit aligned.
 	lead              uint64 // must use atomic operations to access; keep 64-bit aligned.
 
-	consistIndex cindex.ConsistentIndexer // consistIndex is used to get/set/save consistentIndex
-	r            raftNode                 // uses 64-bit atomics; keep 64-bit aligned.
+	consistIndex cindex.ConsistentIndexer // 已持久化达到 持久储存的index consistIndex is used to get/set/save consistentIndex
+	r            raftNode                 // raft状态机数据 uses 64-bit atomics; keep 64-bit aligned.
 
 	readych chan struct{}
 	Cfg     ServerConfig
