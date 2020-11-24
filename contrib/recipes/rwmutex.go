@@ -22,6 +22,7 @@ import (
 	"go.etcd.io/etcd/v3/mvcc/mvccpb"
 )
 
+// 提供分布式读写锁
 type RWMutex struct {
 	s   *concurrency.Session
 	ctx context.Context

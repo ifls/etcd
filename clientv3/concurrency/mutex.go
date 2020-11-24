@@ -29,6 +29,7 @@ var ErrLocked = errors.New("mutex: Locked by another session")
 var ErrSessionExpired = errors.New("mutex: session is expired")
 
 // Mutex implements the sync Locker interface with etcd
+// 封装分布式锁
 type Mutex struct {
 	s *Session
 

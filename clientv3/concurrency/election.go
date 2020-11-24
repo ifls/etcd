@@ -29,6 +29,7 @@ var (
 	ErrElectionNoLeader  = errors.New("election: no leader")
 )
 
+// 封装选主
 type Election struct {
 	session *Session
 
