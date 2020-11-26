@@ -22,6 +22,7 @@ import (
 	"go.etcd.io/etcd/v3/mvcc/mvccpb"
 )
 
+// 分布式优先队列
 // PriorityQueue implements a multi-reader, multi-writer distributed queue.
 type PriorityQueue struct {
 	client *v3.Client

@@ -21,6 +21,7 @@ import (
 	"go.etcd.io/etcd/v3/mvcc/mvccpb"
 )
 
+// 分布式栅栏
 // Barrier creates a key in etcd to block processes, then deletes the key to
 // release all blocked processes.
 type Barrier struct {

@@ -21,6 +21,7 @@ import (
 	v3 "go.etcd.io/etcd/v3/clientv3"
 )
 
+// etcd 软件事务性内存, 不是分布式事务 是一种并发控制机制，模拟数据库事务的机制，控制在并行计算时对共享内存的访问控制。它是锁的一种替代机制。(wiki)
 // STM is an interface for software transactional memory.
 type STM interface {
 	// Get returns the value for a key and inserts the key in the txn's read set.

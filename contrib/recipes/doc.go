@@ -13,5 +13,5 @@
 // limitations under the License.
 
 // Package recipe contains experimental client-side distributed
-// synchronization primitives.
+// synchronization primitives. 包含实验性客户端 分布式 同步原语
 package recipe

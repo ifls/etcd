@@ -22,6 +22,7 @@ import (
 	"go.etcd.io/etcd/v3/mvcc/mvccpb"
 )
 
+// 分布式计数型 栅栏
 // DoubleBarrier blocks processes on Enter until an expected count enters, then
 // blocks again on Leave until all processes have left.
 type DoubleBarrier struct {

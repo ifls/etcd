@@ -21,6 +21,7 @@ import (
 	"go.etcd.io/etcd/v3/mvcc/mvccpb"
 )
 
+// 分布式队列
 // Queue implements a multi-reader, multi-writer distributed queue.
 type Queue struct {
 	client *v3.Client
