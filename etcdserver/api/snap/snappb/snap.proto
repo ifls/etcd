@@ -9,6 +9,6 @@ option (gogoproto.unmarshaler_all) = true;
 option (gogoproto.goproto_getters_all) = false;
 
 message snapshot {
-	optional uint32 crc  = 1 [(gogoproto.nullable) = false];
-	optional bytes data  = 2;
+  optional uint32 crc = 1 [(gogoproto.nullable) = false];
+  optional bytes data = 2;
 }

@@ -1,11 +1,16 @@
-This demonstrates using Cloudflare's [cfssl](https://github.com/cloudflare/cfssl) to easily generate certificates for an etcd cluster.
+This demonstrates using Cloudflare's [cfssl](https://github.com/cloudflare/cfssl) to easily generate certificates for an
+etcd cluster.
 
-Defaults generate an ECDSA-384 root and leaf certificates for `localhost`. etcd nodes will use the same certificates for both sides of mutual authentication, but won't require client certs for non-peer clients.
+Defaults generate an ECDSA-384 root and leaf certificates for `localhost`. etcd nodes will use the same certificates for
+both sides of mutual authentication, but won't require client certs for non-peer clients.
 
 **Instructions**
 
 1. Install git, go, and make
-2. Amend https://github.com/etcd-io/etcd/blob/master/hack/tls-setup/config/req-csr.json - IP's currently in the config should be replaced/added with IP addresses of each cluster node, please note 127.0.0.1 is always required for loopback purposes:
+2. Amend https://github.com/etcd-io/etcd/blob/master/hack/tls-setup/config/req-csr.json - IP's currently in the config
+   should be replaced/added with IP addresses of each cluster node, please note 127.0.0.1 is always required for
+   loopback purposes:
+
 ```json
 Example:
 {
@@ -28,4 +33,5 @@ Example:
   ]
 }
 ```
+
 3. Run `make` to generate the certs

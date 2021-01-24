@@ -2,7 +2,8 @@
 title: Run etcd clusters inside containers
 ---
 
-The following guide shows how to run etcd with rkt and Docker using the [static bootstrap process](clustering.md#static).
+The following guide shows how to run etcd with rkt and Docker using the [static bootstrap process](clustering.md#static)
+.
 
 ## rkt
 
@@ -64,11 +65,15 @@ ETCDCTL_API=3 etcdctl --endpoints=http://172.16.28.21:2379,http://172.16.28.22:2
 
 ### DNS
 
-Production clusters which refer to peers by DNS name known to the local resolver must mount the [host's DNS configuration](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html#customizing-rkt-options).
+Production clusters which refer to peers by DNS name known to the local resolver must mount
+the [host's DNS configuration](https://coreos.com/kubernetes/docs/latest/kubelet-wrapper.html#customizing-rkt-options).
 
 ## Docker
 
-In order to expose the etcd API to clients outside of Docker host, use the host IP address of the container. Please see [`docker inspect`](https://docs.docker.com/engine/reference/commandline/inspect) for more detail on how to get the IP address. Alternatively, specify `--net=host` flag to `docker run` command to skip placing the container inside of a separate network stack.
+In order to expose the etcd API to clients outside of Docker host, use the host IP address of the container. Please
+see [`docker inspect`](https://docs.docker.com/engine/reference/commandline/inspect) for more detail on how to get the
+IP address. Alternatively, specify `--net=host` flag to `docker run` command to skip placing the container inside of a
+separate network stack.
 
 ### Running a single node etcd
 
@@ -184,11 +189,13 @@ docker exec etcd /bin/sh -c "export ETCDCTL_API=3 && /usr/local/bin/etcdctl put 
 
 ## Bare Metal
 
-To provision a 3 node etcd cluster on bare-metal, the examples in the [baremetal repo](https://github.com/coreos/coreos-baremetal/tree/master/examples) may be useful.
+To provision a 3 node etcd cluster on bare-metal, the examples in
+the [baremetal repo](https://github.com/coreos/coreos-baremetal/tree/master/examples) may be useful.
 
 ## Mounting a certificate volume
 
-The etcd release container does not include default root certificates. To use HTTPS with certificates trusted by a root authority (e.g., for discovery), mount a certificate directory into the etcd container:
+The etcd release container does not include default root certificates. To use HTTPS with certificates trusted by a root
+authority (e.g., for discovery), mount a certificate directory into the etcd container:
 
 ```
 REGISTRY=quay.io/coreos/etcd

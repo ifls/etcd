@@ -2,7 +2,10 @@
 title: Production users
 ---
 
-This document tracks people and use cases for etcd in production. By creating a list of production use cases we hope to build a community of advisors that we can reach out to with experience using various etcd applications, operation environments, and cluster sizes. The etcd development team may reach out periodically to check-in on how etcd is working in the field and update this list.
+This document tracks people and use cases for etcd in production. By creating a list of production use cases we hope to
+build a community of advisors that we can reach out to with experience using various etcd applications, operation
+environments, and cluster sizes. The etcd development team may reach out periodically to check-in on how etcd is working
+in the field and update this list.
 
 ## All Kubernetes Users
 
@@ -11,7 +14,11 @@ This document tracks people and use cases for etcd in production. By creating a 
 
 **This is a meta user; please feel free to document specific Kubernetes clusters!**
 
-All Kubernetes clusters use etcd as their primary data store. This means etcd's users include such companies as [Niantic, Inc Pokemon Go](https://cloudplatform.googleblog.com/2016/09/bringing-Pokemon-GO-to-life-on-Google-Cloud.html), [Box](https://blog.box.com/blog/kubernetes-box-microservices-maximum-velocity/), [CoreOS](https://coreos.com/tectonic), [Ticketmaster](https://www.youtube.com/watch?v=wqXVKneP0Hg), [Salesforce](https://www.salesforce.com) and many many more.
+All Kubernetes clusters use etcd as their primary data store. This means etcd's users include such companies
+as [Niantic, Inc Pokemon Go](https://cloudplatform.googleblog.com/2016/09/bringing-Pokemon-GO-to-life-on-Google-Cloud.html)
+, [Box](https://blog.box.com/blog/kubernetes-box-microservices-maximum-velocity/), [CoreOS](https://coreos.com/tectonic)
+, [Ticketmaster](https://www.youtube.com/watch?v=wqXVKneP0Hg), [Salesforce](https://www.salesforce.com) and many many
+more.
 
 ## discovery.etcd.io
 
@@ -23,7 +30,8 @@ All Kubernetes clusters use etcd as their primary data store. This means etcd's 
 - *Environment*: AWS
 - *Backups*: Periodic async to S3
 
-discovery.etcd.io is the longest continuously running etcd backed service that we know about. It is the basis of automatic cluster bootstrap and was launched in Feb. 2014: https://coreos.com/blog/etcd-0.3.0-released/.
+discovery.etcd.io is the longest continuously running etcd backed service that we know about. It is the basis of
+automatic cluster bootstrap and was launched in Feb. 2014: https://coreos.com/blog/etcd-0.3.0-released/.
 
 ## OpenTable
 
@@ -45,7 +53,9 @@ discovery.etcd.io is the longest continuously running etcd backed service that w
 - *Environment*: Baremetal
 - *Backups*: Periodic sync to Ceph RadosGW and DigitalOcean VM
 
-CyCore Systems provides architecture and engineering for computing systems.  This cluster provides microservices, virtual machines, databases, storage clusters to a number of clients.  It is built on CoreOS machines, with each machine in the cluster running etcd as a peer or proxy.
+CyCore Systems provides architecture and engineering for computing systems. This cluster provides microservices, virtual
+machines, databases, storage clusters to a number of clients. It is built on CoreOS machines, with each machine in the
+cluster running etcd as a peer or proxy.
 
 ## Radius Intelligence
 
@@ -57,11 +67,14 @@ CyCore Systems provides architecture and engineering for computing systems.  Thi
 - *Environment*: AWS, CoreOS, Kubernetes
 - *Backups*: None, all data can be recreated if necessary.
 
-Radius Intelligence uses Kubernetes running CoreOS to containerize and scale internal toolsets. Examples include running [JetBrains TeamCity][teamcity] and internal AWS security and cost reporting tools. etcd clusters back these clusters as well as provide some basic environment bootstrapping configuration keys.
+Radius Intelligence uses Kubernetes running CoreOS to containerize and scale internal toolsets. Examples include
+running [JetBrains TeamCity][teamcity] and internal AWS security and cost reporting tools. etcd clusters back these
+clusters as well as provide some basic environment bootstrapping configuration keys.
 
 ## Vonage
 
-- *Application*: kubernetes, vault backend, system configuration for microservices, scheduling, locks (future - service discovery)
+- *Application*: kubernetes, vault backend, system configuration for microservices, scheduling, locks (future - service
+  discovery)
 - *Launched*: August 2015
 - *Cluster Size*: 2 clusters of 5 members in 2 DCs, n local proxies 1-to-1 with microservice, (ssl and SRV look up)
 - *Order of Data Size*: kilobytes
@@ -79,7 +92,9 @@ Radius Intelligence uses Kubernetes running CoreOS to containerize and scale int
 - *Environment*: Bare Metal, AWS, etc.
 - *Backups*: None.
 
-PD(Placement Driver) is the central controller in the TiDB cluster. It saves the cluster meta information, schedule the data, allocate the global unique timestamp for the distributed transaction, etc. It embeds etcd to supply high availability and auto failover.
+PD(Placement Driver) is the central controller in the TiDB cluster. It saves the cluster meta information, schedule the
+data, allocate the global unique timestamp for the distributed transaction, etc. It embeds etcd to supply high
+availability and auto failover.
 
 ## Huawei
 
@@ -92,6 +107,7 @@ PD(Placement Driver) is the central controller in the TiDB cluster. It saves the
 - *Backups*: None, all data can be recreated if necessary.
 
 [teamcity]: https://www.jetbrains.com/teamcity/
+
 [raoofm]:https://github.com/raoofm
 
 ## Qiniu Cloud
@@ -115,9 +131,10 @@ PD(Placement Driver) is the central controller in the TiDB cluster. It saves the
 - *Backups*: None, all data can be recreated if necessary.
 
 [metad]:https://github.com/yunify/metad
-[yunify]:https://github.com/yunify
-[qingcloud]:https://qingcloud.com/
 
+[yunify]:https://github.com/yunify
+
+[qingcloud]:https://qingcloud.com/
 
 ## Yandex
 
@@ -141,7 +158,8 @@ PD(Placement Driver) is the central controller in the TiDB cluster. It saves the
 - *Environment*: Baremetal
 - *Backups*: Periodic sync to backup server
 
-In Tencent games, we use Docker and Kubernetes to deploy and run our applications, and use etcd to save meta data for service discovery, Kubernetes, etc.
+In Tencent games, we use Docker and Kubernetes to deploy and run our applications, and use etcd to save meta data for
+service discovery, Kubernetes, etc.
 
 ## Hyper.sh
 
@@ -153,12 +171,15 @@ In Tencent games, we use Docker and Kubernetes to deploy and run our application
 - *Environment*: Baremetal
 - *Backups*: None, all data can be recreated if necessary.
 
-In [hyper.sh][hyper.sh], the container service is backed by [hypernetes][hypernetes], a multi-tenant kubernetes distro. Moreover, we use etcd to coordinate the multiple manage services and store global meta data.
+In [hyper.sh][hyper.sh], the container service is backed by [hypernetes][hypernetes], a multi-tenant kubernetes distro.
+Moreover, we use etcd to coordinate the multiple manage services and store global meta data.
 
 [hypernetes]:https://github.com/hyperhq/hypernetes
+
 [Hyper.sh]:https://www.hyper.sh
 
 ## Meitu
+
 - *Application*: system configuration for services, service discovery, kubernetes in test environment
 - *Launched*: October 2015
 - *Cluster Size*: 1 cluster of 3 members
@@ -170,6 +191,7 @@ In [hyper.sh][hyper.sh], the container service is backed by [hypernetes][hyperne
 [shafreeck]:https://github.com/shafreeck
 
 ## Grab
+
 - *Application*: system configuration for services, service discovery
 - *Launched*: June 2016
 - *Cluster Size*: 1 cluster of 7 members
@@ -179,6 +201,7 @@ In [hyper.sh][hyper.sh], the container service is backed by [hypernetes][hyperne
 - *Backups*: None, all data can be recreated if necessary.
 
 [taxitan]:https://github.com/taxitan
+
 [reterVision]:https://github.com/reterVision
 
 ## DaoCloud.io
@@ -191,7 +214,8 @@ In [hyper.sh][hyper.sh], the container service is backed by [hypernetes][hyperne
 - *Environment*: Baremetal and virtual machines
 - *Backups*: None, all data can be recreated if necessary.
 
-In [DaoCloud][DaoCloud], we use Docker and Swarm to deploy and run our applications, and we use etcd to save metadata for service discovery.
+In [DaoCloud][DaoCloud], we use Docker and Swarm to deploy and run our applications, and we use etcd to save metadata
+for service discovery.
 
 [DaoCloud]:https://www.daocloud.io
 

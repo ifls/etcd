@@ -14,17 +14,20 @@ Authentication manages user access permissions for etcd resources.
 
 ## Client
 
-A client connects to the etcd cluster to issue service requests such as fetching key-value pairs, writing data, or watching for updates.
+A client connects to the etcd cluster to issue service requests such as fetching key-value pairs, writing data, or
+watching for updates.
 
 ## Cluster
 
 Cluster consists of several members.
 
-The node in each member follows raft consensus protocol to replicate logs. Cluster receives proposals from members, commits them and apply to local store.
+The node in each member follows raft consensus protocol to replicate logs. Cluster receives proposals from members,
+commits them and apply to local store.
 
 ## Compaction
 
-Compaction discards all etcd event history and superseded keys prior to a given revision. It is used to reclaim storage space in the etcd backend database.
+Compaction discards all etcd event history and superseded keys prior to a given revision. It is used to reclaim storage
+space in the etcd backend database.
 
 ## Election
 
@@ -40,7 +43,8 @@ A user-defined identifier for storing and retrieving user-defined values in etcd
 
 ## Key range
 
-A set of keys containing either an individual key, a lexical interval for all x such that a < x <= b, or all keys greater than a given key.
+A set of keys containing either an individual key, a lexical interval for all x such that a < x <= b, or all keys
+greater than a given key.
 
 ## Keyspace
 
@@ -64,11 +68,13 @@ Peer is another member of the same cluster.
 
 ## Proposal
 
-A proposal is a request (for example a write request, a configuration change request) that needs to go through raft protocol.
+A proposal is a request (for example a write request, a configuration change request) that needs to go through raft
+protocol.
 
 ## Quorum
 
-The number of active members needed for consensus to modify the cluster state. etcd requires a member majority to reach quorum.
+The number of active members needed for consensus to modify the cluster state. etcd requires a member majority to reach
+quorum.
 
 ## Revision
 

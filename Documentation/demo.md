@@ -1,6 +1,5 @@
 ---
-title: Demo
-weight: 1
+title: Demo weight: 1
 ---
 
 This series of examples shows the basic procedures for working with an etcd cluster.
@@ -108,7 +107,6 @@ ENDPOINTS=$HOST_1:2379,$HOST_2:2379,$HOST_3:2379
 etcdctl --endpoints=$ENDPOINTS member list
 ```
 
-
 ## Access etcd
 
 ![02_etcdctl_access_etcd_2016051001](https://storage.googleapis.com/etcd/demo/02_etcdctl_access_etcd_2016051001.gif)
@@ -126,7 +124,6 @@ etcdctl --endpoints=$ENDPOINTS get foo
 etcdctl --endpoints=$ENDPOINTS --write-out="json" get foo
 ```
 
-
 ## Get by prefix
 
 ![03_etcdctl_get_by_prefix_2016050501](https://storage.googleapis.com/etcd/demo/03_etcdctl_get_by_prefix_2016050501.gif)
@@ -138,7 +135,6 @@ etcdctl --endpoints=$ENDPOINTS put web3 value3
 
 etcdctl --endpoints=$ENDPOINTS get web --prefix
 ```
-
 
 ## Delete
 
@@ -152,7 +148,6 @@ etcdctl --endpoints=$ENDPOINTS put k1 value1
 etcdctl --endpoints=$ENDPOINTS put k2 value2
 etcdctl --endpoints=$ENDPOINTS del k --prefix
 ```
-
 
 ## Transactional write
 
@@ -174,7 +169,6 @@ failure requests (get, put, delete):
 put user1 good
 ```
 
-
 ## Watch
 
 `watch` to get notified of future changes:
@@ -190,11 +184,9 @@ etcdctl --endpoints=$ENDPOINTS put stock1 10
 etcdctl --endpoints=$ENDPOINTS put stock2 20
 ```
 
-
 ## Lease
 
 `lease` to write with TTL:
-
 
 ![07_etcdctl_lease_2016050501](https://storage.googleapis.com/etcd/demo/07_etcdctl_lease_2016050501.gif)
 
@@ -211,7 +203,6 @@ etcdctl --endpoints=$ENDPOINTS lease revoke 2be7547fbc6a5afa
 etcdctl --endpoints=$ENDPOINTS get sample
 ```
 
-
 ## Distributed locks
 
 `lock` for distributed lock:
@@ -225,7 +216,6 @@ etcdctl --endpoints=$ENDPOINTS lock mutex1
 etcdctl --endpoints=$ENDPOINTS lock mutex1
 ```
 
-
 ## Elections
 
 `elect` for leader election:
@@ -238,7 +228,6 @@ etcdctl --endpoints=$ENDPOINTS elect one p1
 # another client with the same name blocks
 etcdctl --endpoints=$ENDPOINTS elect one p2
 ```
-
 
 ## Cluster status
 
@@ -266,7 +255,6 @@ etcdctl --endpoints=$ENDPOINTS endpoint health
 10.240.0.18:2379 is healthy: successfully committed proposal: took = 4.025451ms
 ```
 
-
 ## Snapshot
 
 `snapshot` to save point-in-time snapshot of etcd database:
@@ -292,13 +280,11 @@ etcdctl --write-out=table --endpoints=$ENDPOINTS snapshot status my.db
 +---------+----------+------------+------------+
 ```
 
-
 ## Migrate
 
 `migrate` to transform etcd v2 to v3 data:
 
 ![12_etcdctl_migrate_2016061602](https://storage.googleapis.com/etcd/demo/12_etcdctl_migrate_2016061602.gif)
-
 
 ```shell
 # write key in etcd version 2 store
@@ -319,7 +305,6 @@ etcdctl --endpoints=$ENDPOINT migrate --data-dir="default.etcd" --wal-dir="defau
 # confirm that the key got migrated
 etcdctl --endpoints=$ENDPOINTS get /foo
 ```
-
 
 ## Member
 
@@ -432,7 +417,6 @@ etcd --data-dir=data.etcd --name ${THIS_NAME} \
 	--initial-cluster-state ${CLUSTER_STATE} \
 	--initial-cluster-token ${TOKEN}
 ```
-
 
 ## Auth
 

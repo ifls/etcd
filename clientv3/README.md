@@ -27,8 +27,8 @@ defer cli.Close()
 ```
 
 etcd v3 uses [`gRPC`](https://www.grpc.io) for remote procedure calls. And `clientv3` uses
-[`grpc-go`](https://github.com/grpc/grpc-go) to connect to etcd. Make sure to close the client after using it.
-If the client is not closed, the connection will have leaky goroutines. To specify client request timeout,
+[`grpc-go`](https://github.com/grpc/grpc-go) to connect to etcd. Make sure to close the client after using it. If the
+client is not closed, the connection will have leaky goroutines. To specify client request timeout,
 pass `context.WithTimeout` to APIs:
 
 ```go
@@ -41,7 +41,8 @@ if err != nil {
 // use the response
 ```
 
-For full compatibility, it is recommended to vendor builds using etcd's vendored packages, using tools like `golang/dep`, as in [vendor directories](https://golang.org/cmd/go/#hdr-Vendor_Directories).
+For full compatibility, it is recommended to vendor builds using etcd's vendored packages, using tools like `golang/dep`
+, as in [vendor directories](https://golang.org/cmd/go/#hdr-Vendor_Directories).
 
 ## Error Handling
 
@@ -70,15 +71,20 @@ if err != nil {
 
 ## Metrics
 
-The etcd client optionally exposes RPC metrics through [go-grpc-prometheus](https://github.com/grpc-ecosystem/go-grpc-prometheus). See the [examples](https://github.com/etcd-io/etcd/blob/master/clientv3/example_metrics_test.go).
+The etcd client optionally exposes RPC metrics
+through [go-grpc-prometheus](https://github.com/grpc-ecosystem/go-grpc-prometheus). See
+the [examples](https://github.com/etcd-io/etcd/blob/master/clientv3/example_metrics_test.go).
 
 ## Namespacing
 
-The [namespace](https://godoc.org/go.etcd.io/etcd/clientv3/namespace) package provides `clientv3` interface wrappers to transparently isolate client requests to a user-defined prefix.
+The [namespace](https://godoc.org/go.etcd.io/etcd/clientv3/namespace) package provides `clientv3` interface wrappers to
+transparently isolate client requests to a user-defined prefix.
 
 ## Request size limit
 
-Client request size limit is configurable via `clientv3.Config.MaxCallSendMsgSize` and `MaxCallRecvMsgSize` in bytes. If none given, client request send limit defaults to 2 MiB including gRPC overhead bytes. And receive limit defaults to `math.MaxInt32`.
+Client request size limit is configurable via `clientv3.Config.MaxCallSendMsgSize` and `MaxCallRecvMsgSize` in bytes. If
+none given, client request send limit defaults to 2 MiB including gRPC overhead bytes. And receive limit defaults
+to `math.MaxInt32`.
 
 ## Examples
 

@@ -2,9 +2,12 @@
 title: Overview
 ---
 
-The etcd v3 API is designed to give users a more efficient and cleaner abstraction compared to etcd v2. There are a number of semantic and protocol changes in this new API.
+The etcd v3 API is designed to give users a more efficient and cleaner abstraction compared to etcd v2. There are a
+number of semantic and protocol changes in this new API.
 
-To prove out the design of the v3 API the team has also built [a number of example recipes](https://github.com/coreos/etcd/tree/master/contrib/recipes), there is a [video discussing these recipes too](https://www.youtube.com/watch?v=fj-2RY-3yVU&feature=youtu.be&t=590).
+To prove out the design of the v3 API the team has also
+built [a number of example recipes](https://github.com/coreos/etcd/tree/master/contrib/recipes), there is
+a [video discussing these recipes too](https://www.youtube.com/watch?v=fj-2RY-3yVU&feature=youtu.be&t=590).
 
 # Design
 
@@ -35,15 +38,14 @@ To prove out the design of the v3 API the team has also built [a number of examp
     - easy for people to try out etcd
     - easy for people to write simple etcd application
 
-
 ## Notes
 
 ### Request Size Limitation
 
-The max request size is around 1MB. Since etcd replicates requests in a streaming fashion, a very large
-request might block other requests for a long time. The use case for etcd is to store small configuration
-values, so we prevent user from submitting large requests. This also applies to Txn requests. We might loosen
-the size in the future a little bit or make it configurable.
+The max request size is around 1MB. Since etcd replicates requests in a streaming fashion, a very large request might
+block other requests for a long time. The use case for etcd is to store small configuration values, so we prevent user
+from submitting large requests. This also applies to Txn requests. We might loosen the size in the future a little bit
+or make it configurable.
 
 ## Protobuf Defined API
 
@@ -54,6 +56,7 @@ the size in the future a little bit or make it configurable.
 ## Examples
 
 ### Put a key (foo=bar)
+
 ```
 // A put is always successful
 Put( PutRequest { key = foo, value = bar } )
@@ -67,6 +70,7 @@ PutResponse {
 ```
 
 ### Get a key (assume we have foo=bar)
+
 ```
 Get ( RangeRequest { key = foo } )
 
@@ -88,6 +92,7 @@ RangeResponse {
 ```
 
 ### Range over a key space (assume we have foo0=bar0… foo100=bar100)
+
 ```
 Range ( RangeRequest { key = foo, end_key = foo80, limit = 30  } )
 
@@ -117,6 +122,7 @@ RangeResponse {
 ```
 
 ### Finish a txn (assume we have foo0=bar0, foo1=bar1)
+
 ```
 Txn(TxnRequest {
     // mod_revision of foo0 is equal to 1, mod_revision of foo1 is greater than 1
@@ -210,4 +216,5 @@ WatchResponse {
 ```
 
 [api-protobuf]: https://github.com/etcd-io/etcd/blob/master/etcdserver/etcdserverpb/rpc.proto
+
 [kv-protobuf]: https://github.com/etcd-io/etcd/blob/master/mvcc/mvccpb/kv.proto

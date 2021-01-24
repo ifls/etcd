@@ -2,13 +2,16 @@
 title: Monitoring etcd
 ---
 
-Each etcd server provides local monitoring information on its client port through http endpoints. The monitoring data is useful for both system health checking and cluster debugging.
+Each etcd server provides local monitoring information on its client port through http endpoints. The monitoring data is
+useful for both system health checking and cluster debugging.
 
 ## Debug endpoint
 
-If `--debug` is set, the etcd server exports debugging information on its client port under the `/debug` path. Take care when setting `--debug`, since there will be degraded performance and verbose logging.
+If `--debug` is set, the etcd server exports debugging information on its client port under the `/debug` path. Take care
+when setting `--debug`, since there will be degraded performance and verbose logging.
 
-The `/debug/pprof` endpoint is the standard go runtime profiling endpoint. This can be used to profile CPU, heap, mutex, and goroutine utilization. For example, here `go tool pprof` gets the top 10 functions where etcd spends its time:
+The `/debug/pprof` endpoint is the standard go runtime profiling endpoint. This can be used to profile CPU, heap, mutex,
+and goroutine utilization. For example, here `go tool pprof` gets the top 10 functions where etcd spends its time:
 
 ```sh
 $ go tool pprof http://localhost:2379/debug/pprof/profile
@@ -32,7 +35,8 @@ Showing top 10 nodes out of 157 (cum >= 10ms)
     10ms  2.08% 64.58%       10ms  2.08%  github.com/coreos/etcd/vendor/golang.org/x/net/http2.(*Framer).WriteHeaders
 ```
 
-The `/debug/requests` endpoint gives gRPC traces and performance statistics through a web browser. For example, here is a `Range` request for the key `abc`:
+The `/debug/requests` endpoint gives gRPC traces and performance statistics through a web browser. For example, here is
+a `Range` request for the key `abc`:
 
 ```
 When	Elapsed (s)
@@ -45,7 +49,8 @@ When	Elapsed (s)
 
 ## Metrics endpoint
 
-Each etcd server exports metrics under the `/metrics` path on its client port and optionally on locations given by `--listen-metrics-urls`.
+Each etcd server exports metrics under the `/metrics` path on its client port and optionally on locations given
+by `--listen-metrics-urls`.
 
 The metrics can be fetched with `curl`:
 
@@ -63,7 +68,9 @@ etcd_disk_backend_commit_duration_seconds_bucket{le="0.016"} 406464
 
 ## Health Check
 
-Since v3.3.0, in addition to responding to the `/metrics` endpoint, any locations specified by `--listen-metrics-urls` will also respond to the `/health` endpoint. This can be useful if the standard endpoint is configured with mutual (client) TLS authentication, but a load balancer or monitoring service still needs access to the health check.
+Since v3.3.0, in addition to responding to the `/metrics` endpoint, any locations specified by `--listen-metrics-urls`
+will also respond to the `/health` endpoint. This can be useful if the standard endpoint is configured with mutual (
+client) TLS authentication, but a load balancer or monitoring service still needs access to the health check.
 
 ## Prometheus
 
@@ -103,10 +110,10 @@ nohup /tmp/prometheus \
 
 Now Prometheus will scrape etcd metrics every 10 seconds.
 
-
 ### Alerting
 
-There is a set of default alerts for etcd v3 clusters for [Prometheus 1.x](./etcd3_alert.rules) as well as [Prometheus 2.x](./etcd3_alert.rules.yml).
+There is a set of default alerts for etcd v3 clusters for [Prometheus 1.x](./etcd3_alert.rules) as well
+as [Prometheus 2.x](./etcd3_alert.rules.yml).
 
 > Note: `job` labels may need to be adjusted to fit a particular need. The rules were written to apply to a single cluster so it is recommended to choose labels unique to a cluster.
 
@@ -121,7 +128,8 @@ Url:    http://localhost:9090
 Access: proxy
 ```
 
-Then import the default [etcd dashboard template][template] and customize. For instance, if Prometheus data source name is `my-etcd`, the `datasource` field values in JSON also need to be `my-etcd`.
+Then import the default [etcd dashboard template][template] and customize. For instance, if Prometheus data source name
+is `my-etcd`, the `datasource` field values in JSON also need to be `my-etcd`.
 
 Sample dashboard:
 
@@ -129,5 +137,7 @@ Sample dashboard:
 
 
 [prometheus]: https://prometheus.io/
+
 [grafana]: http://grafana.org/
+
 [template]: ./grafana.json

@@ -2,17 +2,26 @@
 title: gRPC proxy
 ---
 
-The gRPC proxy is a stateless etcd reverse proxy operating at the gRPC layer (L7). The proxy is designed to reduce the total processing load on the core etcd cluster. For horizontal scalability, it coalesces watch and lease API requests. To protect the cluster against abusive clients, it caches key range requests.
+The gRPC proxy is a stateless etcd reverse proxy operating at the gRPC layer (L7). The proxy is designed to reduce the
+total processing load on the core etcd cluster. For horizontal scalability, it coalesces watch and lease API requests.
+To protect the cluster against abusive clients, it caches key range requests.
 
-The gRPC proxy supports multiple etcd server endpoints. When the proxy starts, it randomly picks one etcd server endpoint to use. This endpoint serves all requests until the proxy detects an endpoint failure. If the gRPC proxy detects an endpoint failure, it switches to a different endpoint, if available, to hide failures from its clients. Other retry policies, such as weighted round-robin, may be supported in the future.
+The gRPC proxy supports multiple etcd server endpoints. When the proxy starts, it randomly picks one etcd server
+endpoint to use. This endpoint serves all requests until the proxy detects an endpoint failure. If the gRPC proxy
+detects an endpoint failure, it switches to a different endpoint, if available, to hide failures from its clients. Other
+retry policies, such as weighted round-robin, may be supported in the future.
 
 ## Scalable watch API
 
-The gRPC proxy coalesces multiple client watchers (`c-watchers`) on the same key or range into a single watcher (`s-watcher`) connected to an etcd server. The proxy broadcasts all events from the `s-watcher` to its `c-watchers`.
+The gRPC proxy coalesces multiple client watchers (`c-watchers`) on the same key or range into a single
+watcher (`s-watcher`) connected to an etcd server. The proxy broadcasts all events from the `s-watcher` to
+its `c-watchers`.
 
-Assuming N clients watch the same key, one gRPC proxy can reduce the watch load on the etcd server from N to 1. Users can deploy multiple gRPC proxies to further distribute server load.
+Assuming N clients watch the same key, one gRPC proxy can reduce the watch load on the etcd server from N to 1. Users
+can deploy multiple gRPC proxies to further distribute server load.
 
-In the following example, three clients watch on key A. The gRPC proxy coalesces the three watchers, creating a single  watcher attached to the etcd server.
+In the following example, three clients watch on key A. The gRPC proxy coalesces the three watchers, creating a single
+watcher attached to the etcd server.
 
 ```
             +-------------+
@@ -34,19 +43,33 @@ watch key A ^     ^ watch key A    |
 
 ### Limitations
 
-To effectively coalesce multiple client watchers into a single watcher, the gRPC proxy coalesces new `c-watchers` into an existing `s-watcher` when possible. This coalesced `s-watcher` may be out of sync with the etcd server due to network delays or buffered undelivered events. When the watch revision is unspecified, the gRPC proxy will not guarantee the `c-watcher` will start watching from the most recent store revision. For example, if a client watches from an etcd server with revision 1000, that watcher will begin at revision 1000. If a client watches from the gRPC proxy, may begin watching from revision 990.
+To effectively coalesce multiple client watchers into a single watcher, the gRPC proxy coalesces new `c-watchers` into
+an existing `s-watcher` when possible. This coalesced `s-watcher` may be out of sync with the etcd server due to network
+delays or buffered undelivered events. When the watch revision is unspecified, the gRPC proxy will not guarantee
+the `c-watcher` will start watching from the most recent store revision. For example, if a client watches from an etcd
+server with revision 1000, that watcher will begin at revision 1000. If a client watches from the gRPC proxy, may begin
+watching from revision 990.
 
-Similar limitations apply to cancellation. When the watcher is cancelled, the etcd server’s revision may be greater than the cancellation response revision.
+Similar limitations apply to cancellation. When the watcher is cancelled, the etcd server’s revision may be greater than
+the cancellation response revision.
 
-These two limitations should not cause problems for most use cases. In the future, there may be additional options to force the watcher to bypass the gRPC proxy for more accurate revision responses.
+These two limitations should not cause problems for most use cases. In the future, there may be additional options to
+force the watcher to bypass the gRPC proxy for more accurate revision responses.
 
 ## Scalable lease API
 
-To keep its leases alive, a client must establish at least one gRPC stream to an etcd server for sending periodic heartbeats. If an etcd workload involves heavy lease activity spread over many clients, these streams may contribute to excessive CPU utilization. To reduce the total number of streams on the core cluster, the proxy supports lease stream coalescing.
+To keep its leases alive, a client must establish at least one gRPC stream to an etcd server for sending periodic
+heartbeats. If an etcd workload involves heavy lease activity spread over many clients, these streams may contribute to
+excessive CPU utilization. To reduce the total number of streams on the core cluster, the proxy supports lease stream
+coalescing.
 
-Assuming N clients are updating leases, a single gRPC proxy reduces the stream load on the etcd server from N to 1. Deployments may have additional gRPC proxies to further distribute streams across multiple proxies.
+Assuming N clients are updating leases, a single gRPC proxy reduces the stream load on the etcd server from N to 1.
+Deployments may have additional gRPC proxies to further distribute streams across multiple proxies.
 
-In the following example, three clients update three independent leases (`L1`, `L2`, and `L3`). The gRPC proxy coalesces the three client lease streams (`c-streams`) into a single lease keep alive stream (`s-stream`) attached to an etcd server. The proxy forwards client-side lease heartbeats from the c-streams to the s-stream, then returns the responses to the corresponding c-streams.
+In the following example, three clients update three independent leases (`L1`, `L2`, and `L3`). The gRPC proxy coalesces
+the three client lease streams (`c-streams`) into a single lease keep alive stream (`s-stream`) attached to an etcd
+server. The proxy forwards client-side lease heartbeats from the c-streams to the s-stream, then returns the responses
+to the corresponding c-streams.
 
 ```
           +-------------+
@@ -69,7 +92,8 @@ heartbeat L1 |      | heartbeat L2  |
 
 ## Abusive clients protection
 
-The gRPC proxy caches responses for requests when it does not break consistency requirements. This can protect the etcd server from abusive clients in tight for loops.
+The gRPC proxy caches responses for requests when it does not break consistency requirements. This can protect the etcd
+server from abusive clients in tight for loops.
 
 ## Start etcd gRPC proxy
 
@@ -87,7 +111,8 @@ Start the etcd gRPC proxy to use these static endpoints with the command:
 $ etcd grpc-proxy start --endpoints=infra0.example.com,infra1.example.com,infra2.example.com --listen-addr=127.0.0.1:2379
 ```
 
-The etcd gRPC proxy starts and listens on port 2379. It forwards client requests to one of the three endpoints provided above.
+The etcd gRPC proxy starts and listens on port 2379. It forwards client requests to one of the three endpoints provided
+above.
 
 Sending requests through the proxy:
 
@@ -101,7 +126,9 @@ bar
 
 ## Client endpoint synchronization and name resolution
 
-The proxy supports registering its endpoints for discovery by writing to a user-defined endpoint. This serves two purposes. First, it allows clients to synchronize their endpoints against a set of proxy endpoints for high availability. Second, it is an endpoint provider for etcd [gRPC naming](../dev-guide/grpc_naming.md).
+The proxy supports registering its endpoints for discovery by writing to a user-defined endpoint. This serves two
+purposes. First, it allows clients to synchronize their endpoints against a set of proxy endpoints for high
+availability. Second, it is an endpoint provider for etcd [gRPC naming](../dev-guide/grpc_naming.md).
 
 Register proxy(s) by providing a user-defined prefix:
 
@@ -136,16 +163,16 @@ This lets clients automatically discover proxy endpoints through Sync:
 
 ```go
 cli, err := clientv3.New(clientv3.Config{
-    Endpoints: []string{"http://localhost:23790"},
+Endpoints: []string{"http://localhost:23790"},
 })
 if err != nil {
-    log.Fatal(err)
+log.Fatal(err)
 }
 defer cli.Close()
 
 // fetch registered grpc-proxy endpoints
 if err := cli.Sync(context.Background()); err != nil {
-    log.Fatal(err)
+log.Fatal(err)
 }
 ```
 
@@ -171,7 +198,12 @@ ETCDCTL_API=3 etcdctl --endpoints=http://localhost:23792 member list --write-out
 
 ## Namespacing
 
-Suppose an application expects full control over the entire key space, but the etcd cluster is shared with other applications. To let all appications run without interfering with each other, the proxy can partition the etcd keyspace so clients appear to have access to the complete keyspace. When the proxy is given the flag `--namespace`, all client requests going into the proxy are translated to have a user-defined prefix on the keys. Accesses to the etcd cluster will be under the prefix and responses from the proxy will strip away the prefix; to the client, it appears as if there is no prefix at all.
+Suppose an application expects full control over the entire key space, but the etcd cluster is shared with other
+applications. To let all appications run without interfering with each other, the proxy can partition the etcd keyspace
+so clients appear to have access to the complete keyspace. When the proxy is given the flag `--namespace`, all client
+requests going into the proxy are translated to have a user-defined prefix on the keys. Accesses to the etcd cluster
+will be under the prefix and responses from the proxy will strip away the prefix; to the client, it appears as if there
+is no prefix at all.
 
 To namespace a proxy, start it with `--namespace`:
 
@@ -213,7 +245,8 @@ $ ETCDCTL_API=3 etcdctl --endpoints=http://localhost:2379 endpoint status
 $ ETCDCTL_API=3 etcdctl --endpoints=https://localhost:2379 --cert=client.crt --key=client.key --cacert=ca.crt endpoint status
 ```
 
-Next, start a gRPC proxy on `localhost:12379` by connecting to the etcd endpoint `https://localhost:2379` using the client certificates:
+Next, start a gRPC proxy on `localhost:12379` by connecting to the etcd endpoint `https://localhost:2379` using the
+client certificates:
 
 ```sh
 $ etcd grpc-proxy start --endpoints=https://localhost:2379 --listen-addr localhost:12379 --cert client.crt --key client.key --cacert=ca.crt --insecure-skip-tls-verify &
@@ -228,7 +261,9 @@ $ ETCDCTL_API=3 etcdctl --endpoints=http://localhost:12379 put abc def
 
 ## Metrics and Health
 
-The gRPC proxy exposes `/health` and Prometheus `/metrics` endpoints for the etcd members defined by `--endpoints`. An alternative define an additional URL that will respond to both the `/metrics` and `/health` endpoints with the `--metrics-addr` flag.
+The gRPC proxy exposes `/health` and Prometheus `/metrics` endpoints for the etcd members defined by `--endpoints`. An
+alternative define an additional URL that will respond to both the `/metrics` and `/health` endpoints with
+the `--metrics-addr` flag.
 
 ```bash
 $ etcd grpc-proxy start \
@@ -245,7 +280,10 @@ $ etcd grpc-proxy start \
 
 ### Known issue
 
-The main interface of the proxy serves both HTTP2 and HTTP/1.1. If proxy is setup with TLS as show in the above example, when using a client such as cURL against the listening interface will require explicitly setting the protocol to HTTP/1.1 on the request to return `/metrics` or `/health`. By using the `--metrics-addr` flag the secondary interface will not have this requirement.
+The main interface of the proxy serves both HTTP2 and HTTP/1.1. If proxy is setup with TLS as show in the above example,
+when using a client such as cURL against the listening interface will require explicitly setting the protocol to
+HTTP/1.1 on the request to return `/metrics` or `/health`. By using the `--metrics-addr` flag the secondary interface
+will not have this requirement.
 
 ```bash
  $ curl --cacert proxy-ca.pem --key proxy-client.key --cert proxy-client.crt https://127.0.0.1:23790/metrics --http1.1
