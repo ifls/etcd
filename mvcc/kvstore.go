@@ -34,8 +34,8 @@ import (
 )
 
 var (
-	keyBucketName  = []byte("key")
-	metaBucketName = []byte("meta")
+	keyBucketName  = []byte("key")  //数据桶
+	metaBucketName = []byte("meta") // 元数据桶
 
 	consistentIndexKeyName  = []byte("consistent_index")
 	scheduledCompactKeyName = []byte("scheduledCompactRev")
@@ -74,7 +74,7 @@ type store struct {
 	ci cindex.ConsistentIndexer
 
 	b       backend.Backend
-	kvindex index
+	kvindex index // raft leader日志 最新索引
 
 	le lease.Lessor
 

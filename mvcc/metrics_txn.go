@@ -32,6 +32,7 @@ func newMetricsTxnWrite(tw TxnWrite) TxnWrite {
 	return &metricsTxnWrite{tw, 0, 0, 0, 0}
 }
 
+// 读数据请求入口
 func (tw *metricsTxnWrite) Range(key, end []byte, ro RangeOptions) (*RangeResult, error) {
 	tw.ranges++
 	return tw.TxnWrite.Range(key, end, ro)

@@ -184,6 +184,7 @@ type Server interface {
 	Alarms() []*pb.AlarmMember
 }
 
+// 服务器的具体实现
 // EtcdServer is the production implementation of the Server interface
 type EtcdServer struct {
 	// inflightSnapshots holds count the number of snapshots currently inflight.

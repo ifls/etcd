@@ -45,6 +45,7 @@ func Main() {
 		}
 	}
 
+	// 启动服务
 	startEtcdOrProxyV2()
 }
 

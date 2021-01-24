@@ -24,8 +24,8 @@ import (
 )
 
 type quotaKVServer struct {
-	pb.KVServer
-	qa quotaAlarmer
+	pb.KVServer //内嵌复用
+	qa          quotaAlarmer
 }
 
 type quotaAlarmer struct {
@@ -49,6 +49,7 @@ func (qa *quotaAlarmer) check(ctx context.Context, r interface{}) error {
 	return rpctypes.ErrGRPCNoSpace
 }
 
+// 启动kv服务器
 func NewQuotaKVServer(s *etcdserver.EtcdServer) pb.KVServer {
 	return &quotaKVServer{
 		NewKVServer(s),

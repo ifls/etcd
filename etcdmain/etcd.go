@@ -118,7 +118,7 @@ func startEtcdOrProxyV2() {
 	} else {
 		shouldProxy := cfg.isProxy()
 		if !shouldProxy {
-			//启动节点
+			//启动服务
 			stopped, errc, err = startEtcd(&cfg.ec)
 			if derr, ok := err.(*etcdserver.DiscoveryError); ok && derr.Err == v2discovery.ErrFullCluster {
 				if cfg.shouldFallbackToProxy() {
@@ -214,6 +214,7 @@ func startEtcdOrProxyV2() {
 
 // startEtcd runs StartEtcd in addition to除此之外 hooks needed for standalone etcd.
 func startEtcd(cfg *embed.Config) (<-chan struct{}, <-chan error, error) {
+	//启动服务
 	e, err := embed.StartEtcd(cfg)
 	if err != nil {
 		return nil, nil, err

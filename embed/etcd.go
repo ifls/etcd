@@ -220,9 +220,11 @@ func StartEtcd(inCfg *Config) (e *Etcd, err error) {
 	}
 	e.Server.Start()
 
+	//启动第一个服务
 	if err = e.servePeers(); err != nil {
 		return e, err
 	}
+	//启动第二个grpc服务
 	if err = e.serveClients(); err != nil {
 		return e, err
 	}
@@ -477,6 +479,7 @@ func (e *Etcd) servePeers() (err error) {
 
 	for _, p := range e.Peers {
 		u := p.Listener.Addr().String()
+		// new grpc.Server
 		gs := v3rpc.Server(e.Server, peerTLScfg)
 		m := cmux.New(p.Listener)
 		go gs.Serve(m.Match(cmux.HTTP2()))
@@ -485,6 +488,7 @@ func (e *Etcd) servePeers() (err error) {
 			ReadTimeout: 5 * time.Minute,
 			ErrorLog:    defaultLog.New(ioutil.Discard, "", 0), // do not log user error
 		}
+		//监听第一个http服务 对等服务
 		go srv.Serve(m.Match(cmux.Any()))
 		p.serve = func() error { return m.Serve() }
 		p.close = func(ctx context.Context) error {
@@ -650,7 +654,7 @@ func (e *Etcd) serveClients() (err error) {
 	}
 
 	// start client servers in each goroutine
-	for _, sctx := range e.sctxs {
+	for _, sctx := range e.sctxs { //会启动grpc服务
 		go func(s *serveCtx) {
 			e.errHandler(s.serve(e.Server, &e.cfg.ClientTLSInfo, h, e.errHandler, gopts...))
 		}(sctx)

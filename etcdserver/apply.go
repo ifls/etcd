@@ -98,6 +98,7 @@ type applierV3 interface {
 
 type checkReqFunc func(mvcc.ReadView, *pb.RequestOp) error
 
+// 实际处理请求
 type applierV3backend struct {
 	s *EtcdServer
 
@@ -287,6 +288,7 @@ func (a *applierV3backend) DeleteRange(txn mvcc.TxnWrite, dr *pb.DeleteRangeRequ
 	return resp, nil
 }
 
+// 后端实现
 func (a *applierV3backend) Range(ctx context.Context, txn mvcc.TxnRead, r *pb.RangeRequest) (*pb.RangeResponse, error) {
 	trace := traceutil.Get(ctx)
 
@@ -294,6 +296,7 @@ func (a *applierV3backend) Range(ctx context.Context, txn mvcc.TxnRead, r *pb.Ra
 	resp.Header = &pb.ResponseHeader{}
 
 	if txn == nil {
+		// 读处理器
 		txn = a.s.kv.Read(trace)
 		defer txn.End()
 	}
@@ -316,6 +319,7 @@ func (a *applierV3backend) Range(ctx context.Context, txn mvcc.TxnRead, r *pb.Ra
 		Count: r.CountOnly,
 	}
 
+	// 实际查询
 	rr, err := txn.Range(r.Key, mkGteRange(r.RangeEnd), ro)
 	if err != nil {
 		return nil, err
@@ -361,7 +365,7 @@ func (a *applierV3backend) Range(ctx context.Context, txn mvcc.TxnRead, r *pb.Ra
 		}
 		switch {
 		case sortOrder == pb.RangeRequest_ASCEND:
-			sort.Sort(sorter)
+			sort.Sort(sorter) // 排序
 		case sortOrder == pb.RangeRequest_DESCEND:
 			sort.Sort(sort.Reverse(sorter))
 		}

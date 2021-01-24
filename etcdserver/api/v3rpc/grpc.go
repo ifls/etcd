@@ -35,6 +35,7 @@ const (
 	maxSendBytes      = math.MaxInt32
 )
 
+// 返回grpc服务器对象
 func Server(s *etcdserver.EtcdServer, tls *tls.Config, gopts ...grpc.ServerOption) *grpc.Server {
 	var opts []grpc.ServerOption
 	opts = append(opts, grpc.CustomCodec(&codec{}))
@@ -54,12 +55,18 @@ func Server(s *etcdserver.EtcdServer, tls *tls.Config, gopts ...grpc.ServerOptio
 	opts = append(opts, grpc.MaxRecvMsgSize(int(s.Cfg.MaxRequestBytes+grpcOverheadBytes)))
 	opts = append(opts, grpc.MaxSendMsgSize(maxSendBytes))
 	opts = append(opts, grpc.MaxConcurrentStreams(maxStreams))
+	// new grpc.Server
 	grpcServer := grpc.NewServer(append(opts, gopts...)...)
 
+	// 注册kv服务
 	pb.RegisterKVServer(grpcServer, NewQuotaKVServer(s))
+	// watch
 	pb.RegisterWatchServer(grpcServer, NewWatchServer(s))
+	// 租约
 	pb.RegisterLeaseServer(grpcServer, NewQuotaLeaseServer(s))
+	// 集群
 	pb.RegisterClusterServer(grpcServer, NewClusterServer(s))
+	// 认证
 	pb.RegisterAuthServer(grpcServer, NewAuthServer(s))
 	pb.RegisterMaintenanceServer(grpcServer, NewMaintenanceServer(s))
 
@@ -68,6 +75,7 @@ func Server(s *etcdserver.EtcdServer, tls *tls.Config, gopts ...grpc.ServerOptio
 	// see https://github.com/grpc/grpc/blob/master/doc/health-checking.md for more
 	hsrv := health.NewServer()
 	hsrv.SetServingStatus("", healthpb.HealthCheckResponse_SERVING)
+	//健康
 	healthpb.RegisterHealthServer(grpcServer, hsrv)
 
 	// set zero values for metrics registered for this grpc server

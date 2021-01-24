@@ -47,6 +47,7 @@ func (s *store) Read(trace *traceutil.Trace) TxnRead {
 func (tr *storeTxnRead) FirstRev() int64 { return tr.firstRev }
 func (tr *storeTxnRead) Rev() int64      { return tr.rev }
 
+// 读请求处理
 func (tr *storeTxnRead) Range(key, end []byte, ro RangeOptions) (r *RangeResult, err error) {
 	return tr.rangeKeys(key, end, tr.Rev(), ro)
 }
@@ -114,6 +115,7 @@ func (tw *storeTxnWrite) End() {
 	tw.s.mu.RUnlock()
 }
 
+//查询key
 func (tr *storeTxnRead) rangeKeys(key, end []byte, curRev int64, ro RangeOptions) (*RangeResult, error) {
 	rev := ro.Rev
 	if rev > curRev {
@@ -130,6 +132,7 @@ func (tr *storeTxnRead) rangeKeys(key, end []byte, curRev int64, ro RangeOptions
 		tr.trace.Step("count revisions from in-memory index tree")
 		return &RangeResult{KVs: nil, Count: total, Rev: curRev}, nil
 	}
+	// 同步 leader的日志索引
 	revpairs := tr.s.kvindex.Revisions(key, end, rev)
 	tr.trace.Step("range keys from in-memory index tree")
 	if len(revpairs) == 0 {
@@ -145,6 +148,7 @@ func (tr *storeTxnRead) rangeKeys(key, end []byte, curRev int64, ro RangeOptions
 	revBytes := newRevBytes()
 	for i, revpair := range revpairs[:len(kvs)] {
 		revToBytes(revpair, revBytes)
+		// 读取数据
 		_, vs := tr.tx.UnsafeRange(keyBucketName, revBytes, nil, 0)
 		if len(vs) != 1 {
 			tr.s.lg.Fatal(

@@ -34,10 +34,12 @@ type kvServer struct {
 	maxTxnOps uint
 }
 
+// kv 服务
 func NewKVServer(s *etcdserver.EtcdServer) pb.KVServer {
 	return &kvServer{hdr: newHeader(s), kv: s, maxTxnOps: s.Cfg.MaxTxnOps}
 }
 
+// 处理读请求
 func (s *kvServer) Range(ctx context.Context, r *pb.RangeRequest) (*pb.RangeResponse, error) {
 	if err := checkRangeRequest(r); err != nil {
 		return nil, err
@@ -48,7 +50,7 @@ func (s *kvServer) Range(ctx context.Context, r *pb.RangeRequest) (*pb.RangeResp
 		return nil, togRPCError(err)
 	}
 
-	s.hdr.fill(resp.Header)
+	s.hdr.fill(resp.Header) // 覆盖响应头里的信息
 	return resp, nil
 }
 

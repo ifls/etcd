@@ -27,7 +27,7 @@ const (
 	apiEnv = "ETCDCTL_API"
 )
 
-func main() {
+func main() { // etcdctl 客户端入口
 	apiv := os.Getenv(apiEnv)
 	// unset apiEnv to avoid side-effect for future env and flag parsing.
 	os.Unsetenv(apiEnv)

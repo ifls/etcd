@@ -24,6 +24,6 @@ package main
 
 import "go.etcd.io/etcd/v3/etcdmain"
 
-func main() {
+func main() { //服务器端的主函数
 	etcdmain.Main()
 }

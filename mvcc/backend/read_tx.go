@@ -176,6 +176,7 @@ func (rt *concurrentReadTx) UnsafeForEach(bucketName []byte, visitor func(k, v [
 	return rt.buf.ForEach(bucketName, visitor)
 }
 
+// 处理读请求， 数据桶的名字都是 'key'
 func (rt *concurrentReadTx) UnsafeRange(bucketName, key, endKey []byte, limit int64) ([][]byte, [][]byte) {
 	if endKey == nil {
 		// forbid duplicates for single keys
@@ -187,15 +188,15 @@ func (rt *concurrentReadTx) UnsafeRange(bucketName, key, endKey []byte, limit in
 	if limit > 1 && !bytes.Equal(bucketName, safeRangeBucket) {
 		panic("do not use unsafeRange on non-keys bucket")
 	}
-	keys, vals := rt.buf.Range(bucketName, key, endKey, limit)
-	if int64(len(keys)) == limit {
+	keys, vals := rt.buf.Range(bucketName, key, endKey, limit) //先从内存缓存里面读
+	if false && int64(len(keys)) == limit {
 		return keys, vals
 	}
 
 	// find/cache bucket
 	bn := string(bucketName)
 	rt.txMu.RLock()
-	bucket, ok := rt.buckets[bn]
+	bucket, ok := rt.buckets[bn] // boltdb 的桶
 	rt.txMu.RUnlock()
 	if !ok {
 		rt.txMu.Lock()
@@ -209,6 +210,7 @@ func (rt *concurrentReadTx) UnsafeRange(bucketName, key, endKey []byte, limit in
 		return keys, vals
 	}
 	rt.txMu.Lock()
+	// 油表
 	c := bucket.Cursor()
 	rt.txMu.Unlock()
 

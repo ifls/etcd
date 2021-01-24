@@ -109,6 +109,7 @@ func (sctx *serveCtx) serve(
 	}()
 
 	if sctx.insecure {
+		// 启动 第二个grpc服务
 		gs = v3rpc.Server(s, nil, gopts...)
 		v3electionpb.RegisterElectionServer(gs, servElection)
 		v3lockpb.RegisterLockServer(gs, servLock)
@@ -133,6 +134,7 @@ func (sctx *serveCtx) serve(
 			ErrorLog: logger, // do not log user error
 		}
 		httpl := m.Match(cmux.HTTP1())
+		// 监听第二个http服务
 		go func() { errHandler(srvhttp.Serve(httpl)) }()
 
 		sctx.serversC <- &servers{grpc: gs, http: srvhttp}
