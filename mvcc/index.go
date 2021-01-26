@@ -38,9 +38,10 @@ type index interface {
 	KeyIndex(ki *keyIndex) *keyIndex
 }
 
+// 树-索引
 type treeIndex struct {
 	sync.RWMutex
-	tree *btree.BTree
+	tree *btree.BTree // 内存 b-tree
 	lg   *zap.Logger
 }
 
@@ -51,6 +52,7 @@ func newTreeIndex(lg *zap.Logger) index {
 	}
 }
 
+// 插入数据
 func (ti *treeIndex) Put(key []byte, rev revision) {
 	keyi := &keyIndex{key: key}
 
@@ -59,10 +61,12 @@ func (ti *treeIndex) Put(key []byte, rev revision) {
 	item := ti.tree.Get(keyi)
 	if item == nil {
 		keyi.put(ti.lg, rev.main, rev.sub)
+		// 覆盖
 		ti.tree.ReplaceOrInsert(keyi)
 		return
 	}
 	okeyi := item.(*keyIndex)
+	// 插入
 	okeyi.put(ti.lg, rev.main, rev.sub)
 }
 
@@ -210,8 +214,8 @@ func (ti *treeIndex) Compact(rev int64) map[revision]struct{} {
 
 	clone.Ascend(func(item btree.Item) bool {
 		keyi := item.(*keyIndex)
-		//Lock is needed here to prevent modification to the keyIndex while
-		//compaction is going on or revision added to empty before deletion
+		// Lock is needed here to prevent modification to the keyIndex while
+		// compaction is going on or revision added to empty before deletion
 		ti.Lock()
 		keyi.compact(ti.lg, rev, available)
 		if keyi.isEmpty() {

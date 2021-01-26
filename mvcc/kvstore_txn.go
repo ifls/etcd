@@ -15,11 +15,12 @@
 package mvcc
 
 import (
+	"go.uber.org/zap"
+
 	"go.etcd.io/etcd/v3/lease"
 	"go.etcd.io/etcd/v3/mvcc/backend"
 	"go.etcd.io/etcd/v3/mvcc/mvccpb"
 	"go.etcd.io/etcd/v3/pkg/traceutil"
-	"go.uber.org/zap"
 )
 
 type storeTxnRead struct {
@@ -171,6 +172,7 @@ func (tw *storeTxnWrite) put(key, value []byte, leaseID lease.LeaseID) {
 
 	// if the key exists before, use its previous created and
 	// get its previous leaseID
+	// 读取索引版本
 	_, created, ver, err := tw.s.kvindex.Get(key, rev)
 	if err == nil {
 		c = created.main
@@ -182,6 +184,7 @@ func (tw *storeTxnWrite) put(key, value []byte, leaseID lease.LeaseID) {
 	revToBytes(idxRev, ibytes)
 
 	ver = ver + 1
+	// 新版本的key
 	kv := mvccpb.KeyValue{
 		Key:            key,
 		Value:          value,
@@ -200,8 +203,11 @@ func (tw *storeTxnWrite) put(key, value []byte, leaseID lease.LeaseID) {
 	}
 
 	tw.trace.Step("marshal mvccpb.KeyValue")
+	// 插入db-bolt
 	tw.tx.UnsafeSeqPut(keyBucketName, ibytes, d)
+	// 插入 b-tree 索引
 	tw.s.kvindex.Put(key, idxRev)
+	// 缓存
 	tw.changes = append(tw.changes, kv)
 	tw.trace.Step("store kv pair into bolt db")
 
@@ -261,7 +267,9 @@ func (tw *storeTxnWrite) delete(key []byte) {
 		)
 	}
 
+	// 删除 bolt-db
 	tw.tx.UnsafeSeqPut(keyBucketName, ibytes, d)
+	// 从索引 b-tree里删除
 	err = tw.s.kvindex.Tombstone(key, idxRev)
 	if err != nil {
 		tw.storeTxnRead.s.lg.Fatal(

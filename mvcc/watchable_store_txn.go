@@ -51,6 +51,7 @@ type watchableStoreTxnWrite struct {
 	s *watchableStore
 }
 
+// 返回一个bolt db writer
 func (s *watchableStore) Write(trace *traceutil.Trace) TxnWrite {
 	return &watchableStoreTxnWrite{s.store.Write(trace), s}
 }

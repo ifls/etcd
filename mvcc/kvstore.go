@@ -74,7 +74,7 @@ type store struct {
 	ci cindex.ConsistentIndexer
 
 	b       backend.Backend
-	kvindex index
+	kvindex index // 索引 数据库
 
 	le lease.Lessor
 

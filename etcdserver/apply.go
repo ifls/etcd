@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-semver/semver"
+
 	"go.etcd.io/etcd/v3/auth"
 	"go.etcd.io/etcd/v3/etcdserver/api"
 	"go.etcd.io/etcd/v3/etcdserver/api/membership"
@@ -142,7 +143,7 @@ func (a *applierV3backend) Apply(r *pb.InternalRaftRequest) *applyResult {
 	switch {
 	case r.Range != nil:
 		ar.resp, ar.err = a.s.applyV3.Range(context.TODO(), nil, r.Range)
-	case r.Put != nil:
+	case r.Put != nil: // 处理put
 		ar.resp, ar.trace, ar.err = a.s.applyV3.Put(context.TODO(), nil, r.Put)
 	case r.DeleteRange != nil:
 		ar.resp, ar.err = a.s.applyV3.DeleteRange(nil, r.DeleteRange)
@@ -204,6 +205,7 @@ func (a *applierV3backend) Apply(r *pb.InternalRaftRequest) *applyResult {
 	return ar
 }
 
+// 应用 插入数据
 func (a *applierV3backend) Put(ctx context.Context, txn mvcc.TxnWrite, p *pb.PutRequest) (resp *pb.PutResponse, trace *traceutil.Trace, err error) {
 	resp = &pb.PutResponse{}
 	resp.Header = &pb.ResponseHeader{}
@@ -255,6 +257,7 @@ func (a *applierV3backend) Put(ctx context.Context, txn mvcc.TxnWrite, p *pb.Put
 		}
 	}
 
+	// 更新版本
 	resp.Header.Revision = txn.Put(p.Key, val, leaseID)
 	trace.AddField(traceutil.Field{Key: "response_revision", Value: resp.Header.Revision})
 	return resp, trace, nil

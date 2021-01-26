@@ -91,6 +91,7 @@ func (t *batchTx) UnsafeSeqPut(bucketName []byte, key []byte, value []byte) {
 }
 
 func (t *batchTx) unsafePut(bucketName []byte, key []byte, value []byte, seq bool) {
+	// 拿到桶
 	bucket := t.tx.Bucket(bucketName)
 	if bucket == nil {
 		t.backend.lg.Fatal(
@@ -103,6 +104,8 @@ func (t *batchTx) unsafePut(bucketName []byte, key []byte, value []byte, seq boo
 		// this can delay the page split and reduce space usage.
 		bucket.FillPercent = 0.9
 	}
+
+	// 插入数据
 	if err := bucket.Put(key, value); err != nil {
 		t.backend.lg.Fatal(
 			"failed to write to a bucket",

@@ -126,11 +126,12 @@ func (rd Ready) appliedCursor() uint64 {
 type Node interface {
 	// Tick increments the internal logical clock for the Node by a single tick. Election
 	// timeouts and heartbeat timeouts are in units of ticks.
-	Tick()
+	Tick() // 逻辑时间递增
 	// Campaign causes the Node to transition to candidate state and start campaigning to become leader.
-	Campaign(ctx context.Context) error
+	Campaign(ctx context.Context) error // 切换到首选人, 开启竞选leader
 	// Propose proposes that data be appended to the log. Note that proposals can be lost without
 	// notice, therefore it is user's job to ensure proposal retries.
+	// 提议数据更新
 	Propose(ctx context.Context, data []byte) error
 	// ProposeConfChange proposes a configuration change. Like any proposal, the
 	// configuration change may be dropped with or without an error being
@@ -144,9 +145,11 @@ type Node interface {
 	// message is only allowed if all Nodes participating in the cluster run a
 	// version of this library aware of the V2 API. See pb.ConfChangeV2 for
 	// usage details and semantics.
+	// 配置变更提议
 	ProposeConfChange(ctx context.Context, cc pb.ConfChangeI) error
 
 	// Step advances the state machine using the given message. ctx.Err() will be returned, if any.
+	// ??
 	Step(ctx context.Context, msg pb.Message) error
 
 	// Ready returns a channel that returns the current point-in-time state.
@@ -177,6 +180,7 @@ type Node interface {
 	ApplyConfChange(cc pb.ConfChangeI) *pb.ConfState
 
 	// TransferLeadership attempts to transfer leadership to the given transferee.
+	// 卸任
 	TransferLeadership(ctx context.Context, lead, transferee uint64)
 
 	// ReadIndex request a read state. The read state will be set in the ready.
@@ -201,7 +205,7 @@ type Node interface {
 	// log probing in the follower.
 	ReportSnapshot(id uint64, status SnapshotStatus)
 	// Stop performs any necessary termination of the Node.
-	Stop()
+	Stop() // 退出集群, 下线
 }
 
 type Peer struct {
