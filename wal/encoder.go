@@ -63,6 +63,7 @@ func (e *encoder) encode(rec *walpb.Record) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
+	// 计算crc
 	e.crc.Write(rec.Data)
 	rec.Crc = e.crc.Sum32()
 	var (
@@ -85,6 +86,7 @@ func (e *encoder) encode(rec *walpb.Record) error {
 	}
 
 	lenField, padBytes := encodeFrameSize(len(data))
+	// 写入长度
 	if err = writeUint64(e.bw, lenField, e.uint64buf); err != nil {
 		return err
 	}
@@ -92,6 +94,7 @@ func (e *encoder) encode(rec *walpb.Record) error {
 	if padBytes != 0 {
 		data = append(data, make([]byte, padBytes)...)
 	}
+	// 写入数据
 	n, err = e.bw.Write(data)
 	walWriteBytes.Add(float64(n))
 	return err

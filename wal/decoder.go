@@ -34,7 +34,7 @@ const frameSizeBytes = 8
 
 type decoder struct {
 	mu  sync.Mutex
-	brs []*bufio.Reader
+	brs []*bufio.Reader // 所有 wal文件
 
 	// lastValidOff file offset following the last valid decoded record
 	lastValidOff int64
@@ -69,14 +69,16 @@ func (d *decoder) decodeRecord(rec *walpb.Record) error {
 		return io.EOF
 	}
 
+	// 先读取长度, 从第一个文件
 	l, err := readInt64(d.brs[0])
 	if err == io.EOF || (err == nil && l == 0) {
 		// hit end of file or preallocated space
-		d.brs = d.brs[1:]
+		d.brs = d.brs[1:] // 去掉读光的文件
 		if len(d.brs) == 0 {
 			return io.EOF
 		}
 		d.lastValidOff = 0
+		// 递归
 		return d.decodeRecord(rec)
 	}
 	if err != nil {

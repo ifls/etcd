@@ -82,6 +82,7 @@ func (st *storage) Release(snap raftpb.Snapshot) error {
 // readWAL reads the WAL at the given snap and returns the wal, its latest HardState and cluster ID, and all entries that appear
 // after the position of the given snap in the WAL.
 // The snap must have been previously saved to the WAL, or this call will panic.
+// 启动后重载 wal日志
 func readWAL(lg *zap.Logger, waldir string, snap walpb.Snapshot, unsafeNoFsync bool) (w *wal.WAL, id, cid types.ID, st raftpb.HardState, ents []raftpb.Entry) {
 	var (
 		err       error
@@ -96,10 +97,11 @@ func readWAL(lg *zap.Logger, waldir string, snap walpb.Snapshot, unsafeNoFsync b
 		if unsafeNoFsync {
 			w.SetUnsafeNoFsync()
 		}
+
 		if wmetadata, st, ents, err = w.ReadAll(); err != nil {
 			w.Close()
 			// we can only repair ErrUnexpectedEOF and we never repair twice.
-			if repaired || err != io.ErrUnexpectedEOF {
+			if repaired || err != io.ErrUnexpectedEOF { // 只修复一次
 				lg.Fatal("failed to read WAL, cannot be repaired", zap.Error(err))
 			}
 			if !wal.Repair(lg, waldir) {
@@ -108,6 +110,7 @@ func readWAL(lg *zap.Logger, waldir string, snap walpb.Snapshot, unsafeNoFsync b
 				lg.Info("repaired WAL", zap.Error(err))
 				repaired = true
 			}
+			// 重来一次
 			continue
 		}
 		break
