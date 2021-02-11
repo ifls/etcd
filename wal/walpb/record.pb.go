@@ -15,14 +15,12 @@ package walpb
 
 import (
 	"fmt"
+	"io"
+	"math"
 
-	proto "github.com/golang/protobuf/proto"
-
-	math "math"
+	"github.com/golang/protobuf/proto"
 
 	_ "github.com/gogo/protobuf/gogoproto"
-
-	io "io"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -200,7 +198,7 @@ func (m *Record) Unmarshal(dAtA []byte) error {
 			return fmt.Errorf("proto: Record: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 1:
+		case 1: // 解析type
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
 			}
@@ -219,7 +217,7 @@ func (m *Record) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 2:
+		case 2: // 解析crc
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Crc", wireType)
 			}
@@ -238,7 +236,7 @@ func (m *Record) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 3:
+		case 3: // 解析 data
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Data", wireType)
 			}

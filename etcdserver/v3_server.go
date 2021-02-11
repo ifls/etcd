@@ -132,6 +132,7 @@ func (s *EtcdServer) Range(ctx context.Context, r *pb.RangeRequest) (*pb.RangeRe
 
 func (s *EtcdServer) Put(ctx context.Context, r *pb.PutRequest) (*pb.PutResponse, error) {
 	ctx = context.WithValue(ctx, traceutil.StartTimeKey, time.Now())
+	// 先提议到raft模块
 	resp, err := s.raftRequest(ctx, pb.InternalRaftRequest{Put: r})
 	if err != nil {
 		return nil, err
@@ -619,8 +620,8 @@ func (s *EtcdServer) doSerialize(ctx context.Context, chk func(*auth.AuthInfo) e
 }
 
 func (s *EtcdServer) processInternalRaftRequestOnce(ctx context.Context, r pb.InternalRaftRequest) (*applyResult, error) {
-	ai := s.getAppliedIndex()
-	ci := s.getCommittedIndex()
+	ai := s.getAppliedIndex()   // boltdb 已应用的日志index
+	ci := s.getCommittedIndex() // raft模块已提交的日志index
 	if ci > ai+maxGapBetweenApplyAndCommitIndex {
 		return nil, ErrTooManyRequests
 	}
@@ -657,6 +658,7 @@ func (s *EtcdServer) processInternalRaftRequestOnce(ctx context.Context, r pb.In
 	defer cancel()
 
 	start := time.Now()
+	// 提议到raft
 	err = s.r.Propose(cctx, data)
 	if err != nil {
 		proposalsFailed.Inc()
@@ -667,7 +669,7 @@ func (s *EtcdServer) processInternalRaftRequestOnce(ctx context.Context, r pb.In
 	defer proposalsPending.Dec()
 
 	select {
-	case x := <-ch:
+	case x := <-ch: // 阻塞直到成功回复, raft 提议成功就返回了, 之后是异步插入到数据库
 		return x.(*applyResult), nil
 	case <-cctx.Done():
 		proposalsFailed.Inc()

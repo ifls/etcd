@@ -43,6 +43,7 @@ func (tw *metricsTxnWrite) DeleteRange(key, end []byte) (n, rev int64) {
 	return tw.TxnWrite.DeleteRange(key, end)
 }
 
+// 写入数据
 func (tw *metricsTxnWrite) Put(key, value []byte, lease lease.LeaseID) (rev int64) {
 	tw.puts++
 	size := int64(len(key) + len(value))

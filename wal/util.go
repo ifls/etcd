@@ -39,6 +39,7 @@ func Exist(dir string) bool {
 // equal to or smaller than the given index.
 // The given names MUST be sorted.
 func searchIndex(lg *zap.Logger, names []string, index uint64) (int, bool) {
+	// 最后面的应该是最新的??
 	for i := len(names) - 1; i >= 0; i-- {
 		name := names[i]
 		_, curIndex, err := parseWALName(name)
@@ -61,7 +62,7 @@ func isValidSeq(lg *zap.Logger, names []string) bool {
 		if err != nil {
 			lg.Panic("failed to parse WAL file name", zap.String("path", name), zap.Error(err))
 		}
-		if lastSeq != 0 && lastSeq != curSeq-1 {
+		if lastSeq != 0 && lastSeq != curSeq-1 { // 索引连续
 			return false
 		}
 		lastSeq = curSeq

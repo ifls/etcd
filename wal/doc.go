@@ -13,20 +13,18 @@
 // limitations under the License.
 
 /*
-Package wal provides an implementation of a write ahead log that is used by
-etcd.
+Package wal provides an implementation of a write ahead log that is used by etcd.
 
-A WAL is created at a particular directory and is made up of a number of
-segmented WAL files. Inside of each file the raft state and entries are appended
-to it with the Save method:
+A WAL is created at a particular directory and is made up of a number of segmented WAL files.
+Inside of each file the raft state and entries are appended to it with the Save method:
 
 	metadata := []byte{}
 	w, err := wal.Create(zap.NewExample(), "/var/lib/etcd", metadata)
 	...
 	err := w.Save(s, ents)
 
-After saving a raft snapshot to disk, SaveSnapshot method should be called to
-record it. So WAL can match with the saved snapshot when restarting.
+After saving a raft snapshot to disk, SaveSnapshot method should be called to record it.
+So WAL can match with the saved snapshot when restarting. 保存日志快照, 避免每次crash-restart, 都要一个恢复全部日志
 
 	err := w.SaveSnapshot(walpb.Snapshot{Index: 10, Term: 2})
 

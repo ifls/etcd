@@ -30,7 +30,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-semver/semver"
-	humanize "github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 
@@ -486,7 +486,7 @@ func NewServer(cfg ServerConfig) (srv *EtcdServer, err error) {
 		errorc:      make(chan error, 1),
 		v2store:     st,
 		snapshotter: ss,
-		r: *newRaftNode(
+		r: *newRaftNode( // raft node
 			raftNodeConfig{
 				lg:          cfg.Logger,
 				isIDRemoved: func(id uint64) bool { return cl.IsIDRemoved(types.ID(id)) },
@@ -535,6 +535,8 @@ func NewServer(cfg ServerConfig) (srv *EtcdServer, err error) {
 		cfg.Logger.Warn("failed to create token provider", zap.Error(err))
 		return nil, err
 	}
+
+	// mvcc 对象赋值
 	srv.kv = mvcc.New(srv.getLogger(), srv.be, srv.lessor, srv.consistIndex, mvcc.StoreConfig{CompactionBatchLimit: cfg.CompactionBatchLimit})
 	kvindex := srv.consistIndex.ConsistentIndex()
 	srv.lg.Debug("restore consistentIndex",
@@ -757,7 +759,7 @@ func (s *EtcdServer) start() {
 
 	// TODO: if this is an empty log, writes all peer infos
 	// into the first entry
-	go s.run()
+	go s.run() // 后台死循环
 }
 
 func (s *EtcdServer) purgeFile() {
@@ -980,9 +982,9 @@ func (s *EtcdServer) run() {
 
 	for {
 		select {
-		case ap := <-s.r.apply():
+		case ap := <-s.r.apply(): // 更新数据chan
 			f := func(context.Context) { s.applyAll(&ep, &ap) }
-			sched.Schedule(f)
+			sched.Schedule(f) // 调度执行
 		case leases := <-expiredLeaseC:
 			s.goAttach(func() {
 				// Increases throughput of expired leases deletion process through parallelization
@@ -1027,6 +1029,7 @@ func (s *EtcdServer) run() {
 
 func (s *EtcdServer) applyAll(ep *etcdProgress, apply *apply) {
 	s.applySnapshot(ep, apply)
+	// 应用 新的日志条目
 	s.applyEntries(ep, apply)
 
 	proposalsApplied.Set(float64(ep.appliedi))
@@ -1934,6 +1937,7 @@ func (s *EtcdServer) sendMergedSnap(merged snap.Message) {
 // apply takes entries received from Raft (after it has been committed) and
 // applies them to the current state of the EtcdServer.
 // The given entries should not be empty.
+// 应用日志条目
 func (s *EtcdServer) apply(
 	es []raftpb.Entry,
 	confState *raftpb.ConfState,
@@ -1974,6 +1978,7 @@ func (s *EtcdServer) apply(
 // applyEntryNormal apples an EntryNormal type raftpb request to the EtcdServer
 func (s *EtcdServer) applyEntryNormal(e *raftpb.Entry) {
 	shouldApplyV3 := false
+	// 一致性索引
 	index := s.consistIndex.ConsistentIndex()
 	if e.Index > index {
 		// set the consistent index of current executing entry
@@ -1995,6 +2000,7 @@ func (s *EtcdServer) applyEntryNormal(e *raftpb.Entry) {
 		// promote lessor when the local member is leader and finished
 		// applying all entries from the last term.
 		if s.isLeader() {
+			// lossor 出租人
 			s.lessor.Promote(s.Cfg.electionTimeout())
 		}
 		return
@@ -2029,6 +2035,8 @@ func (s *EtcdServer) applyEntryNormal(e *raftpb.Entry) {
 		if !needResult && raftReq.Txn != nil {
 			removeNeedlessRangeReqs(raftReq.Txn)
 		}
+
+		// 插入到 mvcc, 再到 boltdb
 		ar = s.applyV3.Apply(&raftReq)
 	}
 

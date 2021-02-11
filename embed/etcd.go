@@ -218,6 +218,8 @@ func StartEtcd(inCfg *Config) (e *Etcd, err error) {
 			return e, err
 		}
 	}
+
+	// 启动etcd数据库逻辑
 	e.Server.Start()
 
 	//启动第一个服务

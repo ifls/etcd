@@ -20,17 +20,21 @@ import (
 	"path/filepath"
 	"time"
 
+	"go.uber.org/zap"
+
 	"go.etcd.io/etcd/v3/pkg/fileutil"
 	"go.etcd.io/etcd/v3/wal/walpb"
-	"go.uber.org/zap"
 )
 
 // Repair tries to repair ErrUnexpectedEOF in the
-// last wal file by truncating.
+// last wal file by truncating.  修复 ReadAll 返回的错误
+// 只修复 最大最后的一个文件??
 func Repair(lg *zap.Logger, dirpath string) bool {
 	if lg == nil {
 		lg = zap.NewNop()
 	}
+
+	// 打开最后的 wal文件
 	f, err := openLast(lg, dirpath)
 	if err != nil {
 		return false
@@ -59,7 +63,7 @@ func Repair(lg *zap.Logger, dirpath string) bool {
 			}
 			continue
 
-		case io.EOF:
+		case io.EOF: // 正常读完
 			lg.Info("repaired", zap.String("path", f.Name()), zap.Error(io.EOF))
 			return true
 
@@ -71,22 +75,26 @@ func Repair(lg *zap.Logger, dirpath string) bool {
 			}
 			defer bf.Close()
 
+			// 跳到开头
 			if _, err = f.Seek(0, io.SeekStart); err != nil {
 				lg.Warn("failed to read file", zap.String("path", f.Name()), zap.Error(err))
 				return false
 			}
 
+			// 备份
 			if _, err = io.Copy(bf, f); err != nil {
 				lg.Warn("failed to copy", zap.String("from", f.Name()+".broken"), zap.String("to", f.Name()), zap.Error(err))
 				return false
 			}
 
+			// 截断后面的错误
 			if err = f.Truncate(lastOffset); err != nil {
 				lg.Warn("failed to truncate", zap.String("path", f.Name()), zap.Error(err))
 				return false
 			}
 
 			start := time.Now()
+			// 持久化
 			if err = fileutil.Fsync(f.File); err != nil {
 				lg.Warn("failed to fsync", zap.String("path", f.Name()), zap.Error(err))
 				return false

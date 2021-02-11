@@ -35,7 +35,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const (
+const ( // 记录类型
 	metadataType int64 = iota + 1
 	entryType
 	stateType
@@ -134,6 +134,8 @@ func Create(lg *zap.Logger, dirpath string, metadata []byte) (*WAL, error) {
 		)
 		return nil, err
 	}
+
+	// 这一步能检查什么??
 	if _, err = f.Seek(0, io.SeekEnd); err != nil {
 		lg.Warn(
 			"failed to seek an initial WAL file",
@@ -142,6 +144,8 @@ func Create(lg *zap.Logger, dirpath string, metadata []byte) (*WAL, error) {
 		)
 		return nil, err
 	}
+
+	// 预分配指定空间, 避免fdatasync 需要额外同步文件长度 这样的元数据信息
 	if err = fileutil.Preallocate(f.File, SegmentSizeBytes, true); err != nil {
 		lg.Warn(
 			"failed to preallocate an initial WAL file",
@@ -162,12 +166,17 @@ func Create(lg *zap.Logger, dirpath string, metadata []byte) (*WAL, error) {
 		return nil, err
 	}
 	w.locks = append(w.locks, f)
+	// 新文件一开头保存一个 crc 记录
 	if err = w.saveCrc(0); err != nil {
 		return nil, err
 	}
+
+	// 元数据
 	if err = w.encoder.encode(&walpb.Record{Type: metadataType, Data: metadata}); err != nil {
 		return nil, err
 	}
+
+	// 快照
 	if err = w.SaveSnapshot(walpb.Snapshot{}); err != nil {
 		return nil, err
 	}
@@ -214,6 +223,7 @@ func Create(lg *zap.Logger, dirpath string, metadata []byte) (*WAL, error) {
 		return nil
 	}
 	start := time.Now()
+	// 持久化目录
 	if perr = fileutil.Fsync(pdir); perr != nil {
 		dirCloser()
 		lg.Warn(
@@ -351,6 +361,7 @@ func openAtIndex(lg *zap.Logger, dirpath string, snap walpb.Snapshot, write bool
 		// write reuses the file descriptors from read; don't close so
 		// WAL can append without dropping the file lock
 		w.readClose = nil
+		// 检查
 		if _, _, err := parseWALName(filepath.Base(w.tail().Name())); err != nil {
 			closer()
 			return nil, err
@@ -368,7 +379,7 @@ func selectWALFiles(lg *zap.Logger, dirpath string, snap walpb.Snapshot) ([]stri
 	}
 
 	nameIndex, ok := searchIndex(lg, names, snap.Index)
-	if !ok || !isValidSeq(lg, names[nameIndex:]) {
+	if !ok || !isValidSeq(lg, names[nameIndex:]) { // 索引连续递增
 		err = ErrFileNotFound
 		return nil, -1, err
 	}
@@ -380,7 +391,7 @@ func openWALFiles(lg *zap.Logger, dirpath string, names []string, nameIndex int,
 	rcs := make([]io.ReadCloser, 0)
 	rs := make([]io.Reader, 0)
 	ls := make([]*fileutil.LockedFile, 0)
-	for _, name := range names[nameIndex:] {
+	for _, name := range names[nameIndex:] { // 只计算快照和快照后面的
 		p := filepath.Join(dirpath, name)
 		if write {
 			l, err := fileutil.TryLockFile(p, os.O_RDWR, fileutil.PrivateFileMode)
@@ -431,7 +442,7 @@ func (w *WAL) ReadAll() (metadata []byte, state raftpb.HardState, ents []raftpb.
 	var match bool
 	for err = decoder.decode(rec); err == nil; err = decoder.decode(rec) {
 		switch rec.Type {
-		case entryType:
+		case entryType: // 数据日志记录
 			e := mustUnmarshalEntry(rec.Data)
 			// 0 <= e.Index-w.start.Index - 1 < len(ents)
 			if e.Index > w.start.Index {
@@ -482,6 +493,7 @@ func (w *WAL) ReadAll() (metadata []byte, state raftpb.HardState, ents []raftpb.
 		}
 	}
 
+	// 分情况处理错误
 	switch w.tail() {
 	case nil:
 		// We do not have to read out all entries in read mode.
@@ -539,6 +551,7 @@ func (w *WAL) ReadAll() (metadata []byte, state raftpb.HardState, ents []raftpb.
 
 // ValidSnapshotEntries returns all the valid snapshot entries in the wal logs in the given directory.
 // Snapshot entries are valid if their index is less than or equal to the most recent committed hardstate.
+// 返回所有快照
 func ValidSnapshotEntries(lg *zap.Logger, walDir string) ([]walpb.Snapshot, error) {
 	var snaps []walpb.Snapshot
 	var state raftpb.HardState
@@ -609,6 +622,7 @@ func ValidSnapshotEntries(lg *zap.Logger, walDir string) ([]walpb.Snapshot, erro
 // If it cannot read out the expected snap, it will return ErrSnapshotNotFound.
 // If the loaded snap doesn't match with the expected one, it will
 // return error ErrSnapshotMismatch.
+// 验证 wal 完整性
 func Verify(lg *zap.Logger, walDir string, snap walpb.Snapshot) error {
 	var metadata []byte
 	var err error
@@ -695,10 +709,12 @@ func (w *WAL) cut() error {
 		return serr
 	}
 
+	// 截断文件长度
 	if err := w.tail().Truncate(off); err != nil {
 		return err
 	}
 
+	// 持久化
 	if err := w.sync(); err != nil {
 		return err
 	}
@@ -706,32 +722,40 @@ func (w *WAL) cut() error {
 	fpath := filepath.Join(w.dir, walName(w.seq()+1, w.enti+1))
 
 	// create a temp wal file with name sequence + 1, or truncate the existing one
+	// 打开新文件
 	newTail, err := w.fp.Open()
 	if err != nil {
 		return err
 	}
 
 	// update writer and save the previous crc
+	// 加到最后
 	w.locks = append(w.locks, newTail)
 	prevCrc := w.encoder.crc.Sum32()
+
+	// encoder 只处理最后一个文件
 	w.encoder, err = newFileEncoder(w.tail().File, prevCrc)
 	if err != nil {
 		return err
 	}
 
+	// 第一个就是保存之前的crc
 	if err = w.saveCrc(prevCrc); err != nil {
 		return err
 	}
 
+	// 第二个是写入元数据
 	if err = w.encoder.encode(&walpb.Record{Type: metadataType, Data: w.metadata}); err != nil {
 		return err
 	}
 
+	// 保存状态
 	if err = w.saveState(&w.state); err != nil {
 		return err
 	}
 
 	// atomically move temp wal file to wal file
+	// 再次同步新文件
 	if err = w.sync(); err != nil {
 		return err
 	}
@@ -745,14 +769,16 @@ func (w *WAL) cut() error {
 		return err
 	}
 	start := time.Now()
+	// 同步目录数据
 	if err = fileutil.Fsync(w.dirFile); err != nil {
 		return err
 	}
 	walFsyncSec.Observe(time.Since(start).Seconds())
 
 	// reopen newTail with its new path so calls to Name() match the wal filename format
-	newTail.Close()
+	newTail.Close() // 重命名后, 删除旧的句柄
 
+	// 锁定新文件
 	if newTail, err = fileutil.LockFile(fpath, os.O_WRONLY, fileutil.PrivateFileMode); err != nil {
 		return err
 	}
@@ -772,6 +798,7 @@ func (w *WAL) cut() error {
 	return nil
 }
 
+// 写入到文件
 func (w *WAL) sync() error {
 	if w.unsafeNoSync {
 		return nil
@@ -896,6 +923,7 @@ func (w *WAL) saveState(s *raftpb.HardState) error {
 	return w.encoder.encode(rec)
 }
 
+// 支持批量写入
 func (w *WAL) Save(st raftpb.HardState, ents []raftpb.Entry) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -908,26 +936,30 @@ func (w *WAL) Save(st raftpb.HardState, ents []raftpb.Entry) error {
 	mustSync := raft.MustSync(st, w.state, len(ents))
 
 	// TODO(xiangli): no more reference operator
-	for i := range ents {
+	for i := range ents { // 遍历写入所有数据entry
 		if err := w.saveEntry(&ents[i]); err != nil {
 			return err
 		}
 	}
+	// 写入状态条目
 	if err := w.saveState(&st); err != nil {
 		return err
 	}
 
+	// 只是返回最后一个的文件偏移
 	curOff, err := w.tail().Seek(0, io.SeekCurrent)
 	if err != nil {
 		return err
 	}
+
 	if curOff < SegmentSizeBytes {
 		if mustSync {
+			// 持久化到文件
 			return w.sync()
 		}
 		return nil
 	}
-
+	// 文件太大, 需要切到新文件
 	return w.cut()
 }
 

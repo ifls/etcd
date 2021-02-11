@@ -1,30 +1,30 @@
 # Raft library
 
-Raft is a protocol with which a cluster of nodes can maintain a replicated state machine. The state machine is kept in
-sync through the use of a replicated log. For more details on Raft, see "In Search of an Understandable Consensus
-Algorithm"
+Raft is a protocol with which a cluster of nodes can maintain a replicated state machine. 
+The state machine is kept in sync 持续同步 through the use of a replicated log. 
+For more details on Raft, see "In Search of an Understandable Consensus Algorithm"
 (https://raft.github.io/raft.pdf) by Diego Ongaro and John Ousterhout.
 
-This Raft library is stable and feature complete. As of 2016, it is **the most widely used** Raft library in production,
-serving tens of thousands clusters each day. It powers distributed systems such as etcd, Kubernetes, Docker Swarm, Cloud
-Foundry Diego, CockroachDB, TiDB, Project Calico, Flannel, Hyperledger and more.
+This Raft library is stable and feature complete 所有特征完备. 
+As of 2016, it is **the most widely used** Raft library in production, serving tens of thousands clusters each day. 
+It powers distributed systems such as etcd, Kubernetes, Docker Swarm, Cloud Foundry Diego, CockroachDB, TiDB, Project Calico, Flannel, Hyperledger and more.
 
-Most Raft implementations have a monolithic design, including storage handling, messaging serialization, and network
-transport. This library instead follows a minimalistic design philosophy by only implementing the core raft algorithm.
-This minimalism buys flexibility, determinism, and performance.
+Most Raft implementations have a monolithic完全单一的 design, including storage handling, messaging serialization, and network transport. 
+This library instead follows a minimalistic design philosophy by only implementing the core raft algorithm.
+This minimalism最小化 buys flexibility, determinism确定性, and performance.
 
-To keep the codebase small as well as provide flexibility, the library only implements the Raft algorithm; both network
-and disk IO are left to the user. Library users must implement their own transportation layer for message passing
-between Raft peers over the wire. Similarly, users must implement their own storage layer to persist the Raft log and
-state.
+To keep the codebase small as well as provide flexibility, the library only implements the Raft algorithm; 
+both network and disk IO are left to the user. 
+Library users must implement their own transportation layer for message passing between Raft peers over the wire通过网络. 
+Similarly, users must implement their own storage layer to persist the Raft log and state.
 
 In order to easily test the Raft library, its behavior should be deterministic. To achieve this determinism, the library
-models Raft as a state machine. The state machine takes a `Message` as input. A message can either be a local timer
-update or a network message sent from a remote peer. The state machine's output is a
-3-tuple `{[]Messages, []LogEntries, NextState}` consisting of an array of `Messages`, `log entries`,
-and `Raft state changes`. For state machines with the same state, the same state machine input should always generate
-the same state machine output.
-
+models Raft as a state machine. 
+The state machine takes a `Message` as input. A message can either be a local timer update or a network message sent from a remote peer. 
+The state machine's output is a 3-tuple `{[]Messages, []LogEntries, NextState}` consisting of an array of `Messages`, `log entries`,
+and `Raft state changes`. 
+For state machines with the same state, the same state machine input should always generate the same state machine output.
+状态 + 输入 = 确定的输出
 A simple example application, _raftexample_, is also available to help illustrate how to use this package in
 practice: https://github.com/etcd-io/etcd/tree/master/contrib/raftexample
 
@@ -37,13 +37,13 @@ This raft implementation is a full feature implementation of Raft protocol. Feat
 - Log compaction
 - Membership changes
 - Leadership transfer extension
-- Efficient linearizable read-only queries served by both the leader and followers
-    - leader checks with quorum and bypasses Raft log before processing read-only queries
-    - followers asks leader to get a safe read index before processing read-only queries
+- Efficient linearizable线性读 read-only queries served by both the leader and followers
+    - leader checks with quorum and bypasses Raft log before processing read-only queries 检查, 绕过??
+    - followers asks leader to get a safe read index before processing read-only queries 先问leader readindex
 - More efficient lease-based linearizable read-only queries served by both the leader and followers
     - leader bypasses Raft log and processing read-only queries locally
     - followers asks leader to get a safe read index before processing read-only queries
-    - this approach relies on the clock of the all the machines in raft group
+    - this approach方法依赖于 relies on the clock of the all the machines in raft group  所有机器的时钟
 
 This raft implementation also includes a few optional enhancements:
 
@@ -96,9 +96,9 @@ Start a single node cluster, like so:
   n := raft.StartNode(c, peers)
 ```
 
-To allow a new node to join this cluster, do not pass in any peers. First, add the node to the existing cluster by
-calling `ProposeConfChange` on any existing node inside the cluster. Then, start the node with an empty peer list, like
-so:
+To allow a new node to join this cluster, do not pass in any peers. 
+First, add the node to the existing cluster by calling `ProposeConfChange` on any existing node inside the cluster. 
+Then, start the node with an empty peer list, like so:
 
 ```go
   // Create storage and config as shown above.
@@ -131,8 +131,8 @@ To restart a node from previous state:
 
 After creating a Node, the user has a few responsibilities:
 
-First, read from the Node.Ready() channel and process the updates it contains. These steps may be performed in parallel,
-except as noted in step 2.
+First, read from the Node.Ready() channel and process the updates it contains. 
+These steps may be performed in parallel, except as noted in step 2.
 
 1. Write Entries, HardState and Snapshot to persistent storage in order, i.e. Entries first, then HardState and Snapshot
    if they are not empty. If persistent storage supports atomic writes then all of them can be written together. Note
