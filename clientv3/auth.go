@@ -19,9 +19,10 @@ import (
 	"fmt"
 	"strings"
 
+	"google.golang.org/grpc"
+
 	"go.etcd.io/etcd/v3/auth/authpb"
 	pb "go.etcd.io/etcd/v3/etcdserver/etcdserverpb"
-	"google.golang.org/grpc"
 )
 
 type (

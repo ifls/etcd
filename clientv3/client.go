@@ -26,18 +26,19 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"go.etcd.io/etcd/v3/clientv3/balancer"
-	"go.etcd.io/etcd/v3/clientv3/balancer/picker"
-	"go.etcd.io/etcd/v3/clientv3/balancer/resolver/endpoint"
-	"go.etcd.io/etcd/v3/clientv3/credentials"
-	"go.etcd.io/etcd/v3/etcdserver/api/v3rpc/rpctypes"
-	"go.etcd.io/etcd/v3/pkg/logutil"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	grpccredentials "google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/status"
+
+	"go.etcd.io/etcd/v3/clientv3/balancer"
+	"go.etcd.io/etcd/v3/clientv3/balancer/picker"
+	"go.etcd.io/etcd/v3/clientv3/balancer/resolver/endpoint"
+	"go.etcd.io/etcd/v3/clientv3/credentials"
+	"go.etcd.io/etcd/v3/etcdserver/api/v3rpc/rpctypes"
+	"go.etcd.io/etcd/v3/pkg/logutil"
 )
 
 var (
@@ -501,7 +502,7 @@ func (c *Client) roundRobinQuorumBackoff(waitBetween time.Duration, jitterFracti
 	return func(attempt uint) time.Duration {
 		// after each round robin across quorum, backoff for our wait between duration
 		n := uint(len(c.Endpoints()))
-		quorum := (n/2 + 1)
+		quorum := n/2 + 1
 		if attempt%quorum == 0 {
 			c.lg.Debug("backoff", zap.Uint("attempt", attempt), zap.Uint("quorum", quorum), zap.Duration("waitBetween", waitBetween), zap.Float64("jitterFraction", jitterFraction))
 			return jitterUp(waitBetween, jitterFraction)

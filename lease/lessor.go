@@ -24,10 +24,11 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
 	pb "go.etcd.io/etcd/v3/etcdserver/etcdserverpb"
 	"go.etcd.io/etcd/v3/lease/leasepb"
 	"go.etcd.io/etcd/v3/mvcc/backend"
-	"go.uber.org/zap"
 )
 
 // NoLease is a special LeaseID representing the absence of a lease.

@@ -30,6 +30,8 @@ import (
 
 	"github.com/dustin/go-humanize"
 	bolt "go.etcd.io/bbolt"
+	"go.uber.org/zap"
+
 	"go.etcd.io/etcd/v3/clientv3"
 	"go.etcd.io/etcd/v3/etcdserver"
 	"go.etcd.io/etcd/v3/etcdserver/api/membership"
@@ -47,7 +49,6 @@ import (
 	"go.etcd.io/etcd/v3/raft/raftpb"
 	"go.etcd.io/etcd/v3/wal"
 	"go.etcd.io/etcd/v3/wal/walpb"
-	"go.uber.org/zap"
 )
 
 // Manager defines snapshot methods.
@@ -194,7 +195,7 @@ func (s *v3Manager) Status(dbPath string) (ds Status, err error) {
 			if _, err := h.Write(next); err != nil {
 				return fmt.Errorf("cannot write bucket %s : %v", string(next), err)
 			}
-			iskeyb := (string(next) == "key")
+			iskeyb := string(next) == "key"
 			if err := b.ForEach(func(k, v []byte) error {
 				if _, err := h.Write(k); err != nil {
 					return fmt.Errorf("cannot write to bucket %s", err.Error())

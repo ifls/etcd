@@ -272,7 +272,7 @@ func TestStorageApplySnapshot(t *testing.T) {
 
 	s := NewMemoryStorage()
 
-	//Apply Snapshot successful
+	// Apply Snapshot successful
 	i := 0
 	tt := tests[i]
 	err := s.ApplySnapshot(tt)
@@ -280,7 +280,7 @@ func TestStorageApplySnapshot(t *testing.T) {
 		t.Errorf("#%d: err = %v, want %v", i, err, nil)
 	}
 
-	//Apply Snapshot fails due to ErrSnapOutOfDate
+	// Apply Snapshot fails due to ErrSnapOutOfDate
 	i = 1
 	tt = tests[i]
 	err = s.ApplySnapshot(tt)

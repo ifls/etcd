@@ -37,8 +37,8 @@ func TestCreateKV(t *testing.T) {
 		{key: "/cdir/create", value: "1", nodes: 1, wantKeyMatch: true},
 		{key: "/cdir/create", value: "4", wantErr: true},
 		// TODO: unique doesn't create nodes, skip these tests for now
-		//{key: "hello", value: "2", unique: true, wantKeyMatch: false},
-		//{key: "hello", value: "3", unique: true, wantKeyMatch: false},
+		// {key: "hello", value: "2", unique: true, wantKeyMatch: false},
+		// {key: "hello", value: "3", unique: true, wantKeyMatch: false},
 	}
 
 	cli, err := clientv3.New(clientv3.Config{Endpoints: endpoints})

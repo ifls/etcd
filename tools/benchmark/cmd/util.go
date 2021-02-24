@@ -22,9 +22,10 @@ import (
 	"strings"
 
 	"github.com/bgentry/speakeasy"
+	"google.golang.org/grpc/grpclog"
+
 	"go.etcd.io/etcd/v3/clientv3"
 	"go.etcd.io/etcd/v3/pkg/report"
-	"google.golang.org/grpc/grpclog"
 )
 
 var (

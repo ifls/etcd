@@ -20,7 +20,7 @@ import (
 
 	v3 "go.etcd.io/etcd/v3/clientv3"
 	pb "go.etcd.io/etcd/v3/etcdserver/etcdserverpb"
-	mvccpb "go.etcd.io/etcd/v3/mvcc/mvccpb"
+	"go.etcd.io/etcd/v3/mvcc/mvccpb"
 )
 
 type pbPrinter struct{ printer }

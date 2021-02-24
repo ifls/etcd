@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/cockroachdb/datadriven"
+
 	"go.etcd.io/etcd/v3/raft"
 	"go.etcd.io/etcd/v3/raft/raftpb"
 )

@@ -25,7 +25,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	humanize "github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize"
 	bolt "go.etcd.io/bbolt"
 	"go.uber.org/zap"
 )

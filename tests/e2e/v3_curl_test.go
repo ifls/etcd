@@ -208,7 +208,7 @@ func testV3CurlAuth(cx ctlCtx) {
 		cx.t.Fatalf("failed testV3CurlAuth create role with curl using prefix (%s) (%v)", p, err)
 	}
 
-	//grant root role
+	// grant root role
 	for i := 0; i < len(usernames); i++ {
 		grantroleroot, err := json.Marshal(&pb.AuthUserGrantRoleRequest{User: usernames[i], Role: "root"})
 		testutil.AssertNil(cx.t, err)

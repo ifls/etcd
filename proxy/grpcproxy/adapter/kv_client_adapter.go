@@ -19,7 +19,7 @@ import (
 
 	pb "go.etcd.io/etcd/v3/etcdserver/etcdserverpb"
 
-	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc"
 )
 
 type kvs2kvc struct{ kvs pb.KVServer }

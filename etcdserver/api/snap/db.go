@@ -25,7 +25,7 @@ import (
 
 	"go.etcd.io/etcd/v3/pkg/fileutil"
 
-	humanize "github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize"
 	"go.uber.org/zap"
 )
 

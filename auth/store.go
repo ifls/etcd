@@ -1153,7 +1153,7 @@ func (as *authStore) AuthInfoFromCtx(ctx context.Context) (*AuthInfo, error) {
 		return nil, nil
 	}
 
-	//TODO(mitake|hexfusion) review unifying key names
+	// TODO(mitake|hexfusion) review unifying key names
 	ts, ok := md[rpctypes.TokenFieldNameGRPC]
 	if !ok {
 		ts, ok = md[rpctypes.TokenFieldNameSwagger]

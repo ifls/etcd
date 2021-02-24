@@ -20,10 +20,11 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
 	"go.etcd.io/etcd/v3/lease"
 	"go.etcd.io/etcd/v3/mvcc/backend"
 	"go.etcd.io/etcd/v3/pkg/traceutil"
-	"go.uber.org/zap"
 )
 
 func TestScheduleCompaction(t *testing.T) {

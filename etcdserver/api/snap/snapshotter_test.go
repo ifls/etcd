@@ -16,13 +16,14 @@ package snap
 
 import (
 	"fmt"
-	"go.etcd.io/etcd/v3/pkg/fileutil"
 	"hash/crc32"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"go.etcd.io/etcd/v3/pkg/fileutil"
 
 	"go.etcd.io/etcd/v3/raft/raftpb"
 	"go.etcd.io/etcd/v3/wal/walpb"

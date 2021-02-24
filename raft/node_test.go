@@ -107,7 +107,7 @@ func TestNodeStepUnblock(t *testing.T) {
 			if err != tt.werr {
 				t.Errorf("#%d: err = %v, want %v", i, err, tt.werr)
 			}
-			//clean up side-effect
+			// clean up side-effect
 			if ctx.Err() != nil {
 				ctx = context.TODO()
 			}

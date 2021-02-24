@@ -19,9 +19,10 @@ import (
 	"reflect"
 	"testing"
 
+	"google.golang.org/grpc/metadata"
+
 	"go.etcd.io/etcd/v3/etcdserver/api/v3rpc/rpctypes"
 	"go.etcd.io/etcd/v3/version"
-	"google.golang.org/grpc/metadata"
 )
 
 func TestMetadataWithRequireLeader(t *testing.T) {

@@ -528,7 +528,7 @@ func TestStableToWithSnap(t *testing.T) {
 	}
 }
 
-//TestCompaction ensures that the number of log entries is correct after compactions.
+// TestCompaction ensures that the number of log entries is correct after compactions.
 func TestCompaction(t *testing.T) {
 	tests := []struct {
 		lastIndex uint64

@@ -18,8 +18,9 @@ import (
 	"context"
 	"errors"
 
-	pb "go.etcd.io/etcd/v3/etcdserver/etcdserverpb"
 	"google.golang.org/grpc"
+
+	pb "go.etcd.io/etcd/v3/etcdserver/etcdserverpb"
 )
 
 var errAlreadySentHeader = errors.New("adapter: already sent header")

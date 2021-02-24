@@ -26,9 +26,10 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
 	pb "go.etcd.io/etcd/v3/etcdserver/etcdserverpb"
 	"go.etcd.io/etcd/v3/mvcc/backend"
-	"go.uber.org/zap"
 )
 
 const (

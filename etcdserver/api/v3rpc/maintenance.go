@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
+
 	"go.etcd.io/etcd/v3/auth"
 	"go.etcd.io/etcd/v3/etcdserver"
 	"go.etcd.io/etcd/v3/etcdserver/api/v3rpc/rpctypes"

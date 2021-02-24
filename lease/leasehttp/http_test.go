@@ -22,9 +22,10 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
 	"go.etcd.io/etcd/v3/lease"
 	"go.etcd.io/etcd/v3/mvcc/backend"
-	"go.uber.org/zap"
 )
 
 func TestRenewHTTP(t *testing.T) {

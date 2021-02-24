@@ -22,7 +22,7 @@ import (
 	"testing"
 )
 
-func TestMain(t *testing.T) {
+func TestMain_Main(t *testing.T) {
 	// don't launch etcd server when invoked via go test
 	// Note: module name has /v3 now
 	if strings.HasSuffix(os.Args[0], "v3.test") {

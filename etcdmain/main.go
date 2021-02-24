@@ -24,10 +24,10 @@ import (
 )
 
 func Main() {
-	//不支持的cpu指令集直接退出
+	// 不支持的cpu指令集直接退出
 	checkSupportArch()
 
-	//选择启动模式
+	// 选择启动模式
 	if len(os.Args) > 1 {
 		cmd := os.Args[1]
 		if covArgs := os.Getenv("ETCDCOV_ARGS"); len(covArgs) > 0 {

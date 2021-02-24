@@ -28,6 +28,8 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+
 	"go.etcd.io/etcd/v3/etcdserver/api/snap"
 	"go.etcd.io/etcd/v3/etcdserver/etcdserverpb"
 	"go.etcd.io/etcd/v3/pkg/pbutil"
@@ -35,7 +37,6 @@ import (
 	"go.etcd.io/etcd/v3/raft/raftpb"
 	"go.etcd.io/etcd/v3/wal"
 	"go.etcd.io/etcd/v3/wal/walpb"
-	"go.uber.org/zap"
 )
 
 const (

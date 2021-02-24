@@ -66,7 +66,7 @@ func HandleInterrupts(lg *zap.Logger) {
 		for _, h := range ihs {
 			h()
 		}
-		//取消监听
+		// 取消监听
 		signal.Stop(notifier)
 		pid := syscall.Getpid()
 		// exit directly if it is the "init" process, since the kernel will not help to kill pid 1.
@@ -74,7 +74,7 @@ func HandleInterrupts(lg *zap.Logger) {
 			os.Exit(0)
 		}
 		setDflSignal(sig.(syscall.Signal))
-		//重发信号, 然后退出
+		// 重发信号, 然后退出
 		syscall.Kill(pid, sig.(syscall.Signal))
 	}()
 }
