@@ -69,7 +69,7 @@ service Watch {
   // stream sends events. One watch RPC can watch on multiple key ranges, streaming events
   // for several watches at once. The entire event history can be watched starting from the
   // last compaction revision.
-  rpc Watch(stream WatchRequest) returns (stream WatchResponse) {
+  rpc Watch(stream WatchRequest) returns (stream WatchResponse) { // 双向 流式 api
     option (google.api.http) = {
       post: "/v3/watch"
       body: "*"
@@ -102,7 +102,7 @@ service Lease {
 
   // LeaseKeepAlive keeps the lease alive by streaming keep alive requests from the client
   // to the server and streaming keep alive responses from the server to the client.
-  rpc LeaseKeepAlive(stream LeaseKeepAliveRequest) returns (stream LeaseKeepAliveResponse) {
+  rpc LeaseKeepAlive(stream LeaseKeepAliveRequest) returns (stream LeaseKeepAliveResponse) { // 双向流 api
     option (google.api.http) = {
       post: "/v3/lease/keepalive"
       body: "*"
@@ -224,7 +224,7 @@ service Maintenance {
   }
 
   // Snapshot sends a snapshot of the entire backend from a member over a stream to a client.
-  rpc Snapshot(SnapshotRequest) returns (stream SnapshotResponse) {
+  rpc Snapshot(SnapshotRequest) returns (stream SnapshotResponse) {  //单向流
     option (google.api.http) = {
       post: "/v3/maintenance/snapshot"
       body: "*"
@@ -239,7 +239,7 @@ service Maintenance {
     };
   }
 
-  // Downgrade requests downgrades, verifies feasibility or cancels downgrade
+  // Downgrade requests downgrades, verifies feasibility可行性 or cancels downgrade
   // on the cluster version.
   // Supported since etcd 3.5.
   rpc Downgrade(DowngradeRequest) returns (DowngradeResponse) {
@@ -291,7 +291,7 @@ service Auth {
     };
   }
 
-  // UserGet gets detailed user information.
+  // UserGet gets detailed user information. 返回 name 用户的角色信息
   rpc UserGet(AuthUserGetRequest) returns (AuthUserGetResponse) {
     option (google.api.http) = {
       post: "/v3/auth/user/get"
@@ -347,7 +347,7 @@ service Auth {
     };
   }
 
-  // RoleGet gets detailed role information.
+  // RoleGet gets detailed role information. 返回角色的权限
   rpc RoleGet(AuthRoleGetRequest) returns (AuthRoleGetResponse) {
     option (google.api.http) = {
       post: "/v3/auth/role/get"
@@ -355,7 +355,7 @@ service Auth {
     };
   }
 
-  // RoleList gets lists of all roles.
+  // RoleList gets lists of all roles. 列举所有角色
   rpc RoleList(AuthRoleListRequest) returns (AuthRoleListResponse) {
     option (google.api.http) = {
       post: "/v3/auth/role/list"
@@ -397,7 +397,7 @@ message ResponseHeader {
   // For watch progress responses, the header.revision indicates progress. All future events
   // recieved in this stream are guaranteed to have a higher revision number than the
   // header.revision number.
-  int64 revision = 3;
+  int64 revision = 3;  //查询所使用的修改版本
   // raft_term is the raft term when the request was applied.
   uint64 raft_term = 4;
 }
@@ -427,11 +427,11 @@ message RangeRequest {
   bytes range_end = 2;
   // limit is a limit on the number of keys returned for the request. When limit is set to 0,
   // it is treated as no limit.
-  int64 limit = 3;
-  // revision is the point-in-time of the key-value store to use for the range.
+  int64 limit = 3;  // 0表示不限制
+  // revision is the point-in-time时间点 of the key-value store to use for the range.
   // If revision is less or equal to zero, the range is over the newest key-value store.
   // If the revision has been compacted, ErrCompacted is returned as a response.
-  int64 revision = 4;
+  int64 revision = 4;  // 修改版本， 如果已经被压缩，会返回错误
 
   // sort_order is the order for returned sorted results.
   SortOrder sort_order = 5;
@@ -440,18 +440,21 @@ message RangeRequest {
   SortTarget sort_target = 6;
 
   // serializable sets the range request to use serializable member-local reads.
-  // Range requests are linearizable by default; linearizable requests have higher
-  // latency and lower throughput than serializable requests but reflect the current
-  // consensus of the cluster. For better performance, in exchange for possible stale reads,
+  // Range requests are linearizable by default;
+  // linearizable requests have higher latency and lower throughput than serializable requests
+  // but reflect the current consensus of the cluster.
+  // For better performance, in exchange for possible stale过期 reads,
   // a serializable range request is served locally without needing to reach consensus
   // with other nodes in the cluster.
-  bool serializable = 7;
+  bool serializable = 7; // 请求使用本地读，
 
   // keys_only when set returns only the keys and not the values.
-  bool keys_only = 8;
+  bool keys_only = 8; // 不需要返回value的值
 
   // count_only when set returns only the count of the keys in the range.
-  bool count_only = 9;
+  bool count_only = 9;  // 只需要返回查找到的多个key的数量
+
+  // [min_mod_revision, max_mod_revision) [min_create_revision, max_create_revision]
 
   // min_mod_revision is the lower bound for returned key mod revisions; all keys with
   // lesser mod revisions will be filtered away.
@@ -476,9 +479,9 @@ message RangeResponse {
   // kvs is empty when count is requested.
   repeated mvccpb.KeyValue kvs = 2;
   // more indicates if there are more keys to return in the requested range.
-  bool more = 3;
+  bool more = 3;  // 表示还有后面更多数据
   // count is set to the number of keys within the range when requested.
-  int64 count = 4;
+  int64 count = 4;  // key 的总数
 }
 
 message PutRequest {
@@ -492,7 +495,7 @@ message PutRequest {
 
   // If prev_kv is set, etcd gets the previous key-value pair before changing it.
   // The previous key-value pair will be returned in the put response.
-  bool prev_kv = 4;
+  bool prev_kv = 4;  // 返回旧的kv对的值
 
   // If ignore_value is set, etcd updates the key using its current value.
   // Returns an error if the key does not exist.
@@ -521,13 +524,13 @@ message DeleteRangeRequest {
 
   // If prev_kv is set, etcd gets the previous key-value pairs before deleting it.
   // The previous key-value pairs will be returned in the delete response.
-  bool prev_kv = 3;
+  bool prev_kv = 3; // 返回所有旧值的列表
 }
 
 message DeleteRangeResponse {
   ResponseHeader header = 1;
   // deleted is the number of keys deleted by the delete range request.
-  int64 deleted = 2;
+  int64 deleted = 2;  // 删除的数量
   // if prev_kv is set in the request, the previous key-value pairs will be returned.
   repeated mvccpb.KeyValue prev_kvs = 3;
 }
@@ -538,7 +541,7 @@ message RequestOp {
     RangeRequest request_range = 1;
     PutRequest request_put = 2;
     DeleteRangeRequest request_delete_range = 3;
-    TxnRequest request_txn = 4;
+    TxnRequest request_txn = 4;  // 嵌套
   }
 }
 
@@ -615,7 +618,7 @@ message TxnRequest {
   // and the response will contain their respective responses in order.
   repeated Compare compare = 1;
   // success is a list of requests which will be applied when compare evaluates to true.
-  repeated RequestOp success = 2;
+  repeated RequestOp success = 2; // 比较 符合条件时，就执行
   // failure is a list of requests which will be applied when compare evaluates to false.
   repeated RequestOp failure = 3;
 }
@@ -629,15 +632,15 @@ message TxnResponse {
   repeated ResponseOp responses = 3;
 }
 
-// CompactionRequest compacts the key-value store up to a given revision. All superseded keys
+// CompactionRequest compacts the key-value store up to a given revision. All superseded被替代的 keys
 // with a revision less than the compaction revision will be removed.
 message CompactionRequest {
   // revision is the key-value store revision for the compaction operation.
-  int64 revision = 1;
+  int64 revision = 1; // 小于
   // physical is set so the RPC will wait until the compaction is physically
   // applied to the local database such that compacted entries are totally
   // removed from the backend database.
-  bool physical = 2;
+  bool physical = 2; // 阻塞直到物理上已成功删除
 }
 
 message CompactionResponse {
@@ -675,10 +678,10 @@ message SnapshotResponse {
   ResponseHeader header = 1;
 
   // remaining_bytes is the number of blob bytes to be sent after this message
-  uint64 remaining_bytes = 2;
+  uint64 remaining_bytes = 2;  //长度
 
   // blob contains the next chunk of the snapshot in the snapshot stream.
-  bytes blob = 3;
+  bytes blob = 3; //数据
 }
 
 message WatchRequest {
@@ -702,13 +705,13 @@ message WatchCreateRequest {
   bytes range_end = 2;
 
   // start_revision is an optional revision to watch from (inclusive). No start_revision is "now".
-  int64 start_revision = 3;
+  int64 start_revision = 3; // [start_revision|now, )
 
   // progress_notify is set so that the etcd server will periodically send a WatchResponse with
-  // no events to the new watcher if there are no recent events. It is useful when clients
-  // wish to recover a disconnected watcher starting from a recent known revision.
+  // no events to the new watcher if there are no recent events.
+  // It is useful when clients wish to recover a disconnected watcher starting from a recent known revision.
   // The etcd server may decide how often it will send notifications based on current load.
-  bool progress_notify = 4;
+  bool progress_notify = 4;  // ??
 
   enum FilterType {
     // filter out put event.
@@ -729,10 +732,10 @@ message WatchCreateRequest {
   // this can be used ensure that ordering is correct when creating multiple
   // watchers on the same stream. Creating a watcher with an ID already in
   // use on the stream will cause an error to be returned.
-  int64 watch_id = 7;
+  int64 watch_id = 7; // 由客户端指定 要创建的 watcher的id
 
   // fragment enables splitting large revisions into multiple watch responses.
-  bool fragment = 8;
+  bool fragment = 8; // 允许分批推送
 }
 
 message WatchCancelRequest {
@@ -771,19 +774,19 @@ message WatchResponse {
   int64 compact_revision = 5;
 
   // cancel_reason indicates the reason for canceling the watcher.
-  string cancel_reason = 6;
+  string cancel_reason = 6; // 服务器取消一个 监听器，会返回原因
 
   // framgment is true if large watch response was split over multiple responses.
-  bool fragment = 7;
+  bool fragment = 7;  // 分片， 客户端需要合并
 
   repeated mvccpb.Event events = 11;
 }
 
 message LeaseGrantRequest {
   // TTL is the advisory time-to-live in seconds. Expired lease will return -1.
-  int64 TTL = 1;
+  int64 TTL = 1; //
   // ID is the requested ID for the lease. If ID is set to 0, the lessor chooses an ID.
-  int64 ID = 2;
+  int64 ID = 2; //客户端指定id
 }
 
 message LeaseGrantResponse {
@@ -830,14 +833,14 @@ message LeaseKeepAliveResponse {
   // ID is the lease ID from the keep alive request.
   int64 ID = 2;
   // TTL is the new time-to-live for the lease.
-  int64 TTL = 3;
+  int64 TTL = 3; // 新的存活时间
 }
 
 message LeaseTimeToLiveRequest {
   // ID is the lease ID for the lease.
   int64 ID = 1;
   // keys is true to query all the keys attached to this lease.
-  bool keys = 2;
+  bool keys = 2;  // 查询所有相关的key
 }
 
 message LeaseTimeToLiveResponse {
@@ -880,17 +883,17 @@ message Member {
 
 message MemberAddRequest {
   // peerURLs is the list of URLs the added member will use to communicate with the cluster.
-  repeated string peerURLs = 1;
+  repeated string peerURLs = 1; //新人通讯地址
   // isLearner indicates if the added member is raft learner.
-  bool isLearner = 2;
+  bool isLearner = 2;  // learn没有投票权
 }
 
 message MemberAddResponse {
   ResponseHeader header = 1;
   // member is the member information for the added member.
-  Member member = 2;
+  Member member = 2;  //被添加的成员列表
   // members is a list of all members after adding the new member.
-  repeated Member members = 3;
+  repeated Member members = 3;  // 所有成员的列表
 }
 
 message MemberRemoveRequest {
@@ -908,7 +911,7 @@ message MemberUpdateRequest {
   // ID is the member ID of the member to update.
   uint64 ID = 1;
   // peerURLs is the new list of URLs the member will use to communicate with the cluster.
-  repeated string peerURLs = 2;
+  repeated string peerURLs = 2; // 更新通信地址
 }
 
 message MemberUpdateResponse{
@@ -918,7 +921,7 @@ message MemberUpdateResponse{
 }
 
 message MemberListRequest {
-  bool linearizable = 1;
+  bool linearizable = 1; // ??
 }
 
 message MemberListResponse {
@@ -947,7 +950,7 @@ message DefragmentResponse {
 
 message MoveLeaderRequest {
   // targetID is the node ID for the new leader.
-  uint64 targetID = 1;
+  uint64 targetID = 1;  // 请求leader 把 领导权让给 targetID
 }
 
 message MoveLeaderResponse {
@@ -955,9 +958,9 @@ message MoveLeaderResponse {
 }
 
 enum AlarmType {
-  NONE = 0; // default, used to query if any alarm is active
-  NOSPACE = 1; // space quota is exhausted
-  CORRUPT = 2; // kv store corruption detected
+  NONE = 0; // default, used to query if any alarm is active 所有告警
+  NOSPACE = 1; // space quota is exhausted 空间耗尽
+  CORRUPT = 2; // kv store corruption detected 数据损坏
 }
 
 message AlarmRequest {
@@ -972,7 +975,7 @@ message AlarmRequest {
   AlarmAction action = 1;
   // memberID is the ID of the member associated with the alarm. If memberID is 0, the
   // alarm request covers all members.
-  uint64 memberID = 2;
+  uint64 memberID = 2;  // 0表示所有成员
   // alarm is the type of alarm to consider for this request.
   AlarmType alarm = 3;
 }
@@ -1017,21 +1020,21 @@ message StatusRequest {
 message StatusResponse {
   ResponseHeader header = 1;
   // version is the cluster protocol version used by the responding member.
-  string version = 2;
+  string version = 2; // 协议版本
   // dbSize is the size of the backend database physically allocated, in bytes, of the responding member.
-  int64 dbSize = 3;
+  int64 dbSize = 3; // 数据总大小
   // leader is the member ID which the responding member believes is the current leader.
-  uint64 leader = 4;
+  uint64 leader = 4; // leader的 成员id
   // raftIndex is the current raft committed index of the responding member.
-  uint64 raftIndex = 5;
+  uint64 raftIndex = 5; // raft 提交
   // raftTerm is the current raft term of the responding member.
-  uint64 raftTerm = 6;
+  uint64 raftTerm = 6;  //当前任期
   // raftAppliedIndex is the current raft applied index of the responding member.
-  uint64 raftAppliedIndex = 7;
+  uint64 raftAppliedIndex = 7; //已经应用到状态机的
   // errors contains alarm/health information and status.
   repeated string errors = 8;
   // dbSizeInUse is the size of the backend database logically in use, in bytes, of the responding member.
-  int64 dbSizeInUse = 9;
+  int64 dbSizeInUse = 9;  // 虚拟大小
   // isLearner indicates if the member is raft learner.
   bool isLearner = 10;
 }
@@ -1053,8 +1056,8 @@ message AuthenticateRequest {
 message AuthUserAddRequest {
   string name = 1;
   string password = 2;
-  authpb.UserAddOptions options = 3;
-  string hashedPassword = 4;
+  authpb.UserAddOptions options = 3; // 是否有密码
+  string hashedPassword = 4; // 加密后的密码
 }
 
 message AuthUserGetRequest {
@@ -1115,7 +1118,7 @@ message AuthRoleGrantPermissionRequest {
 
 message AuthRoleRevokePermissionRequest {
   string role = 1;
-  bytes key = 2;
+  bytes key = 2;  // 撤回指定key范围内的所有权限
   bytes range_end = 3;
 }
 
@@ -1129,15 +1132,15 @@ message AuthDisableResponse {
 
 message AuthStatusResponse {
   ResponseHeader header = 1;
-  bool enabled = 2;
+  bool enabled = 2;  // 认证是否开启
   // authRevision is the current revision of auth store
-  uint64 authRevision = 3;
+  uint64 authRevision = 3; // 认证协议版本
 }
 
 message AuthenticateResponse {
   ResponseHeader header = 1;
   // token is an authorized token that can be used in succeeding RPCs
-  string token = 2;
+  string token = 2;  // 授权token
 }
 
 message AuthUserAddResponse {
@@ -1147,7 +1150,7 @@ message AuthUserAddResponse {
 message AuthUserGetResponse {
   ResponseHeader header = 1;
 
-  repeated string roles = 2;
+  repeated string roles = 2;  // 返回所拥有的角色信息
 }
 
 message AuthUserDeleteResponse {

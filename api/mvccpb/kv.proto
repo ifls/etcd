@@ -13,9 +13,9 @@ message KeyValue {
   // key is the key in bytes. An empty key is not allowed.
   bytes key = 1;
   // create_revision is the revision of last creation on this key.
-  int64 create_revision = 2;
+  int64 create_revision = 2;  // 上一次创建这个key的版本号
   // mod_revision is the revision of last modification on this key.
-  int64 mod_revision = 3;
+  int64 mod_revision = 3; //上次修改这个key的版本号
   // version is the version of the key. A deletion resets
   // the version to zero and any modification of the key
   // increases its version.
@@ -25,7 +25,7 @@ message KeyValue {
   // lease is the ID of the lease that attached to key.
   // When the attached lease expires, the key will be deleted.
   // If lease is 0, then no lease is attached to the key.
-  int64 lease = 6;
+  int64 lease = 6;  // 所属 的 leaseid, 0表示没有
 }
 
 message Event {

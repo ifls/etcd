@@ -21,7 +21,7 @@ message User {
 	UserAddOptions options = 4;
 }
 
-// Permission is a single entity
+// Permission is a single entity 这一个key的范围上进行读写的权限
 message Permission {
 	enum Type {
 		READ = 0;
