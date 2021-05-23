@@ -21,8 +21,7 @@ import (
 	"os"
 	"strconv"
 
-	"go.etcd.io/etcd/v3/clientv3"
-	"go.etcd.io/etcd/v3/clientv3/snapshot"
+	"go.etcd.io/etcd/client/v3"
 )
 
 type jsonPrinter struct {
@@ -40,7 +39,6 @@ func newJSONPrinter(isHex bool) printer {
 func (p *jsonPrinter) EndpointHealth(r []epHealth) { printJSON(r) }
 func (p *jsonPrinter) EndpointStatus(r []epStatus) { printJSON(r) }
 func (p *jsonPrinter) EndpointHashKV(r []epHashKV) { printJSON(r) }
-func (p *jsonPrinter) DBStatus(r snapshot.Status)  { printJSON(r) }
 
 func (p *jsonPrinter) MemberList(r clientv3.MemberListResponse) {
 	if p.isHex {
@@ -98,6 +96,6 @@ func printMemberListWithHexJSON(r clientv3.MemberListResponse) {
 		}
 	}
 	buffer.WriteString("}")
-	fmt.Println(string(buffer.Bytes()))
+	fmt.Println(buffer.String())
 
 }

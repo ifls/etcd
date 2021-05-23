@@ -20,9 +20,10 @@ import (
 )
 
 func TestCtlV3RoleAdd(t *testing.T)          { testCtl(t, roleAddTest) }
-func TestCtlV3RoleAddNoTLS(t *testing.T)     { testCtl(t, roleAddTest, withCfg(configNoTLS)) }
-func TestCtlV3RoleAddClientTLS(t *testing.T) { testCtl(t, roleAddTest, withCfg(configClientTLS)) }
-func TestCtlV3RoleAddPeerTLS(t *testing.T)   { testCtl(t, roleAddTest, withCfg(configPeerTLS)) }
+func TestCtlV3RootRoleGet(t *testing.T)      { testCtl(t, rootRoleGetTest) }
+func TestCtlV3RoleAddNoTLS(t *testing.T)     { testCtl(t, roleAddTest, withCfg(*newConfigNoTLS())) }
+func TestCtlV3RoleAddClientTLS(t *testing.T) { testCtl(t, roleAddTest, withCfg(*newConfigClientTLS())) }
+func TestCtlV3RoleAddPeerTLS(t *testing.T)   { testCtl(t, roleAddTest, withCfg(*newConfigPeerTLS())) }
 func TestCtlV3RoleAddTimeout(t *testing.T)   { testCtl(t, roleAddTest, withDialTimeout(0)) }
 
 func TestCtlV3RoleGrant(t *testing.T) { testCtl(t, roleGrantTest) }
@@ -48,6 +49,49 @@ func roleAddTest(cx ctlCtx) {
 		if err := ctlV3Role(cx, cmd.args, cmd.expectedStr); err != nil {
 			if cx.dialTimeout > 0 && !isGRPCTimedout(err) {
 				cx.t.Fatalf("roleAddTest #%d: ctlV3Role error (%v)", i, err)
+			}
+		}
+	}
+}
+
+func rootRoleGetTest(cx ctlCtx) {
+	cmdSet := []struct {
+		args        []string
+		expectedStr interface{}
+	}{
+		// Add a role of root .
+		{
+			args:        []string{"add", "root"},
+			expectedStr: "Role root created",
+		},
+		// get root role should always return [, <open ended>
+		{
+			args:        []string{"get", "root"},
+			expectedStr: []string{"Role root\r\n", "KV Read:\r\n", "\t[, <open ended>\r\n", "KV Write:\r\n", "\t[, <open ended>\r\n"},
+		},
+		// granting to root should be refused by server
+		{
+			args:        []string{"grant-permission", "root", "readwrite", "foo"},
+			expectedStr: "Role root updated",
+		},
+		{
+			args:        []string{"get", "root"},
+			expectedStr: []string{"Role root\r\n", "KV Read:\r\n", "\tfoo\r\n", "KV Write:\r\n", "\tfoo\r\n"},
+		},
+	}
+
+	for i, cmd := range cmdSet {
+		if _, ok := cmd.expectedStr.(string); ok {
+			if err := ctlV3Role(cx, cmd.args, cmd.expectedStr.(string)); err != nil {
+				if cx.dialTimeout > 0 && !isGRPCTimedout(err) {
+					cx.t.Fatalf("roleAddTest #%d: ctlV3Role error (%v)", i, err)
+				}
+			}
+		} else {
+			if err := ctlV3RoleMultiExpect(cx, cmd.args, cmd.expectedStr.([]string)...); err != nil {
+				if cx.dialTimeout > 0 && !isGRPCTimedout(err) {
+					cx.t.Fatalf("roleAddTest #%d: ctlV3Role error (%v)", i, err)
+				}
 			}
 		}
 	}
@@ -92,6 +136,12 @@ func roleGrantTest(cx ctlCtx) {
 	}
 }
 
+func ctlV3RoleMultiExpect(cx ctlCtx, args []string, expStr ...string) error {
+	cmdArgs := append(cx.PrefixArgs(), "role")
+	cmdArgs = append(cmdArgs, args...)
+
+	return spawnWithExpects(cmdArgs, expStr...)
+}
 func ctlV3Role(cx ctlCtx, args []string, expStr string) error {
 	cmdArgs := append(cx.PrefixArgs(), "role")
 	cmdArgs = append(cmdArgs, args...)
@@ -114,6 +164,7 @@ func ctlV3RoleGrantPermission(cx ctlCtx, rolename string, perm grantingPerm) err
 	if err != nil {
 		return err
 	}
+	defer proc.Close()
 
 	expStr := fmt.Sprintf("Role %s updated", rolename)
 	_, err = proc.Expect(expStr)
@@ -139,7 +190,7 @@ func ctlV3RoleRevokePermission(cx ctlCtx, rolename string, key, rangeEnd string,
 	if err != nil {
 		return err
 	}
-
+	defer proc.Close()
 	_, err = proc.Expect(expStr)
 	return err
 }
