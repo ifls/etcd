@@ -3,8 +3,7 @@ etcdctl
 
 `etcdctl` is a command line client for [etcd][etcd].
 
-The v3 API is used by default on master branch. For the v2 API, make sure to set environment variable `ETCDCTL_API=2`.
-See also [READMEv2][READMEv2].
+The v3 API is used by default on main branch. For the v2 API, make sure to set environment variable `ETCDCTL_API=2`. See also [READMEv2][READMEv2].
 
 If using released versions earlier than v3.4, set `ETCDCTL_API=3` to use v3 API.
 
@@ -17,9 +16,7 @@ ETCDCTL_CERT=/tmp/cert.pem
 ETCDCTL_KEY=/tmp/key.pem
 ```
 
-Prefix flag strings with `ETCDCTL_`, convert all letters to upper-case, and replace dash(`-`) with underscore(`_`). Note
-that the environment variables with the prefix `ETCDCTL_` can only be used with the etcdctl global flags. Also, the
-environment variable `ETCDCTL_API` is a special case variable for etcdctl internal use only.
+Prefix flag strings with `ETCDCTL_`, convert all letters to upper-case, and replace dash(`-`) with underscore(`_`). Note that the environment variables with the prefix `ETCDCTL_` can only be used with the etcdctl global flags. Also, the environment variable `ETCDCTL_API` is a special case variable for etcdctl internal use only.
 
 ## Key-value commands
 
@@ -79,15 +76,15 @@ RPC: Put
 
 If \<value\> isn't given as command line argument, this command tries to read the value from standard input.
 
-When \<value\> begins with '-', \<value\> is interpreted as a flag. Insert '--' for workaround:
+When \<value\> begins with '-', \<value\> is interpreted as a flag.
+Insert '--' for workaround:
 
 ```bash
 ./etcdctl put <key> -- <value>
 ./etcdctl put -- <key> <value>
 ```
 
-Providing \<value\> in a new line after using `carriage return` is not supported and etcdctl may hang in that case. For
-example, following case is not supported:
+Providing \<value\> in a new line after using `carriage return` is not supported and etcdctl may hang in that case. For example, following case is not supported:
 
 ```bash
 ./etcdctl put <key>\r
@@ -193,8 +190,7 @@ Get keys with names greater than or equal to `foo1` and less than `foo3`:
 
 #### Remarks
 
-If any key or value contains non-printable characters or control characters, simple formatted output can be ambiguous
-due to new lines. To resolve this issue, set `--hex` to hex encode all strings.
+If any key or value contains non-printable characters or control characters, simple formatted output can be ambiguous due to new lines. To resolve this issue, set `--hex` to hex encode all strings.
 
 ### DEL [options] \<key\> [range_end]
 
@@ -260,9 +256,8 @@ Prints the number of keys that were removed in decimal if DEL succeeded.
 
 ### TXN [options]
 
-TXN reads multiple etcd requests from standard input and applies them as a single atomic transaction. A transaction
-consists of list of conditions, a list of requests to apply if all the conditions are true, and a list of requests to
-apply if any condition is false.
+TXN reads multiple etcd requests from standard input and applies them as a single atomic transaction.
+A transaction consists of list of conditions, a list of requests to apply if all the conditions are true, and a list of requests to apply if any condition is false.
 
 RPC: Txn
 
@@ -273,7 +268,6 @@ RPC: Txn
 - interactive -- input transaction with interactive prompting.
 
 #### Input Format
-
 ```ebnf
 <Txn> ::= <CMP>* "\n" <THEN> "\n" <ELSE> "\n"
 <CMP> ::= (<CMPCREATE>|<CMPMOD>|<CMPVAL>|<CMPVER>|<CMPLEASE>) "\n"
@@ -295,13 +289,11 @@ RPC: Txn
 
 #### Output
 
-`SUCCESS` if etcd processed the transaction success list, `FAILURE` if etcd processed the transaction failure list.
-Prints the output for each command in the executed request list, each separated by a blank line.
+`SUCCESS` if etcd processed the transaction success list, `FAILURE` if etcd processed the transaction failure list. Prints the output for each command in the executed request list, each separated by a blank line.
 
 #### Examples
 
 txn in interactive mode:
-
 ```bash
 ./etcdctl txn -i
 # compares:
@@ -322,7 +314,6 @@ put key2 "some extra key"
 ```
 
 txn in non-interactive mode:
-
 ```bash
 ./etcdctl txn <<<'mod("key1") > "0"
 
@@ -342,9 +333,7 @@ put key2 "some extra key"
 
 #### Remarks
 
-When using multi-line values within a TXN command, newlines must be represented as `\n`. Literal newlines will cause
-parsing failures. This differs from other commands (such as PUT) where the shell will convert literal newlines for us.
-For example:
+When using multi-line values within a TXN command, newlines must be represented as `\n`. Literal newlines will cause parsing failures. This differs from other commands (such as PUT) where the shell will convert literal newlines for us. For example:
 
 ```bash
 ./etcdctl txn <<<'mod("key1") > "0"
@@ -380,7 +369,6 @@ RPC: Compact
 Prints the compacted revision.
 
 #### Example
-
 ```bash
 ./etcdctl compaction 1234
 # compacted revision 1234
@@ -388,9 +376,7 @@ Prints the compacted revision.
 
 ### WATCH [options] [key or prefix] [range_end] [--] [exec-command arg1 arg2 ...]
 
-Watch watches events stream on keys or prefixes, [key or prefix, range_end) if range_end is given. The watch command
-runs until it encounters an error or is terminated by the user. If range_end is given, it must be lexicographically
-greater than key or "\x00".
+Watch watches events stream on keys or prefixes, [key or prefix, range_end) if range_end is given. The watch command runs until it encounters an error or is terminated by the user.  If range_end is given, it must be lexicographically greater than key or "\x00".
 
 RPC: Watch
 
@@ -535,8 +521,8 @@ LEASE provides commands for key lease management.
 
 ### LEASE GRANT \<ttl\>
 
-LEASE GRANT creates a fresh lease with a server-selected time-to-live in seconds greater than or equal to the requested
-TTL value.
+LEASE GRANT creates a fresh lease with a server-selected time-to-live in seconds
+greater than or equal to the requested TTL value.
 
 RPC: LeaseGrant
 
@@ -641,7 +627,6 @@ RPC: LeaseKeepAlive
 Prints a message for every keep alive sent or prints a message indicating the lease is gone.
 
 #### Example
-
 ```bash
 ./etcdctl lease keep-alive 32695410dcc0ca0
 # lease 32695410dcc0ca0 keepalived with TTL(100)
@@ -765,13 +750,12 @@ ENDPOINT provides commands for querying individual endpoints.
 
 ### ENDPOINT HEALTH
 
-ENDPOINT HEALTH checks the health of the list of endpoints with respect to cluster. An endpoint is unhealthy when it
-cannot participate in consensus with the rest of the cluster.
+ENDPOINT HEALTH checks the health of the list of endpoints with respect to cluster. An endpoint is unhealthy
+when it cannot participate in consensus with the rest of the cluster.
 
 #### Output
 
-If an endpoint can participate in consensus, prints a message indicating the endpoint is healthy. If an endpoint fails
-to participate in consensus, prints a message indicating the endpoint is unhealthy.
+If an endpoint can participate in consensus, prints a message indicating the endpoint is healthy. If an endpoint fails to participate in consensus, prints a message indicating the endpoint is unhealthy.
 
 #### Example
 
@@ -799,13 +783,11 @@ ENDPOINT STATUS queries the status of each endpoint in the given endpoint list.
 
 ##### Simple format
 
-Prints a humanized table of each endpoint URL, ID, version, database size, leadership status, raft term, and raft
-status.
+Prints a humanized table of each endpoint URL, ID, version, database size, leadership status, raft term, and raft status.
 
 ##### JSON format
 
-Prints a line of JSON encoding each endpoint URL, ID, version, database size, leadership status, raft term, and raft
-status.
+Prints a line of JSON encoding each endpoint URL, ID, version, database size, leadership status, raft term, and raft status.
 
 #### Examples
 
@@ -931,20 +913,17 @@ If NOSPACE alarm is present:
 
 ### DEFRAG [options]
 
-DEFRAG defragments the backend database file for a set of given endpoints while etcd is running, or directly defragments
-an etcd data directory while etcd is not running. When an etcd member reclaims storage space from deleted and compacted
-keys, the space is kept in a free list and the database file remains the same size. By defragmenting the database, the
-etcd member releases this free space back to the file system.
+DEFRAG defragments the backend database file for a set of given endpoints while etcd is running, ~~or directly defragments an etcd data directory while etcd is not running~~. When an etcd member reclaims storage space from deleted and compacted keys, the space is kept in a free list and the database file remains the same size. By defragmenting the database, the etcd member releases this free space back to the file system.
 
-**Note that defragmentation to a live member blocks the system from reading and writing data while rebuilding its
-states.**
+**Note: to defragment offline (`--data-dir` flag), use: `etcutl defrag` instead**
 
-**Note that defragmentation request does not get replicated over cluster. That is, the request is only applied to the
-local node. Specify all members in `--endpoints` flag or `--cluster` flag to automatically find all cluster members.**
+**Note that defragmentation to a live member blocks the system from reading and writing data while rebuilding its states.**
+
+**Note that defragmentation request does not get replicated over cluster. That is, the request is only applied to the local node. Specify all members in `--endpoints` flag or `--cluster` flag to automatically find all cluster members.**
 
 #### Options
 
-- data-dir -- Optional. If present, defragments a data directory not in use by etcd.
+- data-dir -- Optional. **Deprecated**. If present, defragments a data directory not in use by etcd. To be removed in v3.6.
 
 #### Output
 
@@ -967,11 +946,12 @@ Finished defragmenting etcd member[http://127.0.0.1:22379]
 Finished defragmenting etcd member[http://127.0.0.1:32379]
 ```
 
-To defragment a data directory directly, use the `--data-dir` flag:
+To defragment a data directory directly, use the `etcdutl` with `--data-dir` flag 
+(`etcdctl` will remove this flag in v3.6):
 
 ``` bash
 # Defragment while etcd is not running
-./etcdctl defrag --data-dir default.etcd
+./etcdutl defrag --data-dir default.etcd
 # success (exit status 0)
 # Error: cannot open database at default.etcd/member/snap/db
 ```
@@ -995,16 +975,15 @@ The backend snapshot is written to the given file path.
 #### Example
 
 Save a snapshot to "snapshot.db":
-
 ```
 ./etcdctl snapshot save snapshot.db
 ```
 
 ### SNAPSHOT RESTORE [options] \<filename\>
 
-SNAPSHOT RESTORE creates an etcd data directory for an etcd cluster member from a backend database snapshot and a new
-cluster configuration. Restoring the snapshot into each member for a new cluster configuration will initialize a new
-etcd cluster preloaded by the snapshot data.
+Note: Deprecated. Use `etcdutl snapshot restore` instead. To be removed in v3.6.
+
+SNAPSHOT RESTORE creates an etcd data directory for an etcd cluster member from a backend database snapshot and a new cluster configuration. Restoring the snapshot into each member for a new cluster configuration will initialize a new etcd cluster preloaded by the snapshot data.
 
 #### Options
 
@@ -1031,7 +1010,6 @@ A new etcd data directory initialized with the snapshot.
 #### Example
 
 Save a snapshot, restore into a new 3 node cluster, and start the cluster:
-
 ```
 ./etcdctl snapshot save snapshot.db
 
@@ -1048,6 +1026,8 @@ bin/etcd --name sshot3 --listen-client-urls http://127.0.0.1:32379 --advertise-c
 
 ### SNAPSHOT STATUS \<filename\>
 
+Note: Deprecated. Use `etcdutl snapshot restore` instead. To be removed in v3.6.
+
 SNAPSHOT STATUS lists information about a given backend database snapshot file.
 
 #### Output
@@ -1061,19 +1041,18 @@ Prints a humanized table of the database hash, revision, total keys, and size.
 Prints a line of JSON encoding the database hash, revision, total keys, and size.
 
 #### Examples
-
 ```bash
 ./etcdctl snapshot status file.db
 # cf1550fb, 3, 3, 25 kB
 ```
 
 ```bash
-./etcdctl -write-out=json snapshot status file.db
+./etcdctl --write-out=json snapshot status file.db
 # {"hash":3474280699,"revision":3,"totalKey":3,"totalSize":24576}
 ```
 
 ```bash
-./etcdctl -write-out=table snapshot status file.db
+./etcdctl --write-out=table snapshot status file.db
 +----------+----------+------------+------------+
 |   HASH   | REVISION | TOTAL KEYS | TOTAL SIZE |
 +----------+----------+------------+------------+
@@ -1108,8 +1087,7 @@ echo ${transferee_id}
 
 ### LOCK [options] \<lockname\> [command arg1 arg2 ...]
 
-LOCK acquires a distributed mutex with a given name. Once the lock is acquired, it will be held until etcdctl is
-terminated.
+LOCK acquires a distributed mutex with a given name. Once the lock is acquired, it will be held until etcdctl is terminated.
 
 #### Options
 
@@ -1119,8 +1097,7 @@ terminated.
 
 Once the lock is acquired but no command is given, the result for the GET on the unique lock holder key is displayed.
 
-If a command is given, it will be executed with environment variables `ETCD_LOCK_KEY` and `ETCD_LOCK_REV` set to the
-lock's holder key and revision.
+If a command is given, it will be executed with environment variables `ETCD_LOCK_KEY` and `ETCD_LOCK_REV` set to the lock's holder key and revision.
 
 #### Example
 
@@ -1139,7 +1116,6 @@ Acquire lock and execute `echo lock acquired`:
 ```
 
 Acquire lock and execute `etcdctl put` command
-
 ```bash
 ./etcdctl lock mylock ./etcdctl put foo bar
 # OK
@@ -1149,14 +1125,13 @@ Acquire lock and execute `etcdctl put` command
 
 LOCK returns a zero exit code only if it is terminated by a signal and releases the lock.
 
-If LOCK is abnormally terminated or fails to contact the cluster to release the lock, the lock will remain held until
-the lease expires. Progress may be delayed by up to the default lease length of 60 seconds.
+If LOCK is abnormally terminated or fails to contact the cluster to release the lock, the lock will remain held until the lease expires. Progress may be delayed by up to the default lease length of 60 seconds.
 
 ### ELECT [options] \<election-name\> [proposal]
 
-ELECT participates on a named election. A node announces its candidacy in the election by providing a proposal value. If
-a node wishes to observe the election, ELECT listens for new leaders values. Whenever a leader is elected, its proposal
-is given as output.
+ELECT participates on a named election. A node announces its candidacy in the election by providing
+a proposal value. If a node wishes to observe the election, ELECT listens for new leaders values.
+Whenever a leader is elected, its proposal is given as output.
 
 #### Options
 
@@ -1180,15 +1155,13 @@ is given as output.
 
 ELECT returns a zero exit code only if it is terminated by a signal and can revoke its candidacy or leadership, if any.
 
-If a candidate is abnormally terminated, election rogress may be delayed by up to the default lease length of 60
-seconds.
+If a candidate is abnormally terminated, election rogress may be delayed by up to the default lease length of 60 seconds.
 
 ## Authentication commands
 
 ### AUTH \<enable or disable\>
 
-`auth enable` activates authentication on an etcd cluster and `auth disable` deactivates. When authentication is
-enabled, etcd checks all requests for appropriate authorization.
+`auth enable` activates authentication on an etcd cluster and `auth disable` deactivates. When authentication is enabled, etcd checks all requests for appropriate authorization.
 
 RPC: AuthEnable/AuthDisable
 
@@ -1342,8 +1315,7 @@ RPC: RoleRevokePermission
 
 #### Output
 
-`Permission of key <key> is revoked from role <role name>` for single
-key. `Permission of range [<key>, <endkey>) is revoked from role <role name>` for a key range. Exit code is zero.
+`Permission of key <key> is revoked from role <role name>` for single key. `Permission of range [<key>, <endkey>) is revoked from role <role name>` for a key range. Exit code is zero.
 
 #### Examples
 
@@ -1530,58 +1502,6 @@ The approximate total number of keys transferred to the destination cluster, upd
 
 [mirror]: ./doc/mirror_maker.md
 
-### MIGRATE [options]
-
-Migrates keys in a v2 store to a v3 mvcc store. Users should run migration command for all members in the cluster.
-
-#### Options
-
-- data-dir -- Path to the data directory
-
-- wal-dir -- Path to the WAL directory
-
-- transformer -- Path to the user-provided transformer program (default if not provided)
-
-#### Output
-
-No output on success.
-
-#### Default transformer
-
-If user does not provide a transformer program, migrate command will use the default transformer. The default
-transformer transforms `storev2` formatted keys into `mvcc` formatted keys according to the following Go program:
-
-```go
-func transform(n *storev2.Node) *mvccpb.KeyValue {
-	if n.Dir {
-		return nil
-	}
-	kv := &mvccpb.KeyValue{
-		Key:            []byte(n.Key),
-		Value:          []byte(n.Value),
-		CreateRevision: int64(n.CreatedIndex),
-		ModRevision:    int64(n.ModifiedIndex),
-		Version:        1,
-	}
-	return kv
-}
-```
-
-#### User-provided transformer
-
-Users can provide a customized 1:n transformer function that transforms a key from the v2 store to any number of keys in
-the mvcc store. The migration program writes JSON formatted [v2 store keys][v2key] to the transformer program's stdin,
-reads protobuf formatted [mvcc keys][v3key] back from the transformer program's stdout, and finishes migration by saving
-the transformed keys into the mvcc store.
-
-The provided transformer should read until EOF and flush the stdout before exiting to ensure data integrity.
-
-#### Example
-
-```
-./etcdctl migrate --data-dir=/var/etcd --transformer=k8s-transformer
-# finished transforming keys
-```
 
 ### VERSION
 
@@ -1605,9 +1525,7 @@ CHECK provides commands for checking properties of the etcd cluster.
 
 ### CHECK PERF [options]
 
-CHECK PERF checks the performance of the etcd cluster for 60 seconds. Running the `check perf` often can create a large
-keyspace history which can be auto compacted and defragmented using the `--auto-compact` and `--auto-defrag` options as
-described below.
+CHECK PERF checks the performance of the etcd cluster for 60 seconds. Running the `check perf` often can create a large keyspace history which can be auto compacted and defragmented using the `--auto-compact` and `--auto-defrag` options as described below.
 
 RPC: CheckPerf
 
@@ -1623,13 +1541,11 @@ RPC: CheckPerf
 
 #### Output
 
-Prints the result of performance check on different criteria like throughput. Also prints an overall status of the check
-as pass or fail.
+Prints the result of performance check on different criteria like throughput. Also prints an overall status of the check as pass or fail.
 
 #### Examples
 
-Shows examples of both, pass and fail, status. The failure is due to the fact that a large workload was tried on a
-single node etcd cluster running on a laptop environment created for development and testing purpose.
+Shows examples of both, pass and fail, status. The failure is due to the fact that a large workload was tried on a single node etcd cluster running on a laptop environment created for development and testing purpose.
 
 ```bash
 ./etcdctl check perf --load="s"
@@ -1648,9 +1564,7 @@ single node etcd cluster running on a laptop environment created for development
 
 ### CHECK DATASCALE [options]
 
-CHECK DATASCALE checks the memory usage of holding data for different workloads on a given server endpoint. Running
-the `check datascale` often can create a large keyspace history which can be auto compacted and defragmented using
-the `--auto-compact` and `--auto-defrag` options as described below.
+CHECK DATASCALE checks the memory usage of holding data for different workloads on a given server endpoint. Running the `check datascale` often can create a large keyspace history which can be auto compacted and defragmented using the `--auto-compact` and `--auto-defrag` options as described below.
 
 RPC: CheckDatascale
 
@@ -1666,8 +1580,7 @@ RPC: CheckDatascale
 
 #### Output
 
-Prints the system memory usage for a given workload. Also prints status of compact and defragment if related options are
-passed.
+Prints the system memory usage for a given workload. Also prints status of compact and defragment if related options are passed.
 
 #### Examples
 
@@ -1687,12 +1600,9 @@ For all commands, a successful execution return a zero exit code. All failures w
 
 ## Output formats
 
-All commands accept an output format by setting `-w` or `--write-out`. All commands default to the "simple" output
-format, which is meant to be human-readable. The simple format is listed in each command's `Output` description since it
-is customized for each command. If a command has a corresponding RPC, it will respect all output formats.
+All commands accept an output format by setting `-w` or `--write-out`. All commands default to the "simple" output format, which is meant to be human-readable. The simple format is listed in each command's `Output` description since it is customized for each command. If a command has a corresponding RPC, it will respect all output formats.
 
-If a command fails, returning a non-zero exit code, an error string will be written to standard error regardless of
-output format.
+If a command fails, returning a non-zero exit code, an error string will be written to standard error regardless of output format.
 
 ### Simple
 
@@ -1700,50 +1610,37 @@ A format meant to be easy to parse and human-readable. Specific to each command.
 
 ### JSON
 
-The JSON encoding of the command's [RPC response][etcdrpc]. Since etcd's RPCs use byte strings, the JSON output will
-encode keys and values in base64.
+The JSON encoding of the command's [RPC response][etcdrpc]. Since etcd's RPCs use byte strings, the JSON output will encode keys and values in base64.
 
 Some commands without an RPC also support JSON; see the command's `Output` description.
 
 ### Protobuf
 
-The protobuf encoding of the command's [RPC response][etcdrpc]. If an RPC is streaming, the stream messages will be
-concetenated. If an RPC is not given for a command, the protobuf output is not defined.
+The protobuf encoding of the command's [RPC response][etcdrpc]. If an RPC is streaming, the stream messages will be concetenated. If an RPC is not given for a command, the protobuf output is not defined.
 
 ### Fields
 
-An output format similar to JSON but meant to parse with coreutils. For an integer field named `Field`, it writes a line
-in the format `"Field" : %d` where `%d` is go's integer formatting. For byte array fields, it writes `"Field" : %q`
-where `%q` is go's quoted string formatting (e.g., `[]byte{'a', '\n'}` is written as `"a\n"`).
+An output format similar to JSON but meant to parse with coreutils. For an integer field named `Field`, it writes a line in the format `"Field" : %d` where `%d` is go's integer formatting. For byte array fields, it writes `"Field" : %q` where `%q` is go's quoted string formatting (e.g., `[]byte{'a', '\n'}` is written as `"a\n"`).
 
 ## Compatibility Support
 
-etcdctl is still in its early stage. We try out best to ensure fully compatible releases, however we might break
-compatibility to fix bugs or improve commands. If we intend to release a version of etcdctl with backward
-incompatibilities, we will provide notice prior to release and have instructions on how to upgrade.
+etcdctl is still in its early stage. We try out best to ensure fully compatible releases, however we might break compatibility to fix bugs or improve commands. If we intend to release a version of etcdctl with backward incompatibilities, we will provide notice prior to release and have instructions on how to upgrade.
 
 ### Input Compatibility
 
-Input includes the command name, its flags, and its arguments. We ensure backward compatibility of the input of normal
-commands in non-interactive mode.
+Input includes the command name, its flags, and its arguments. We ensure backward compatibility of the input of normal commands in non-interactive mode.
 
 ### Output Compatibility
 
-Output includes output from etcdctl and its exit code. etcdctl provides `simple` output format by default. We ensure
-compatibility for the `simple` output format of normal commands in non-interactive mode. Currently, we do not ensure
-backward compatibility for `JSON` format and the format in non-interactive mode. Currently, we do not ensure backward
-compatibility of utility commands.
+Output includes output from etcdctl and its exit code. etcdctl provides `simple` output format by default.
+We ensure compatibility for the `simple` output format of normal commands in non-interactive mode. Currently, we do not ensure
+backward compatibility for `JSON` format and the format in non-interactive mode. Currently, we do not ensure backward compatibility of utility commands.
 
 ### TODO: compatibility with etcd server
 
 [etcd]: https://github.com/coreos/etcd
-
 [READMEv2]: READMEv2.md
-
 [v2key]: ../store/node_extern.go#L28-L37
-
-[v3key]: ../mvcc/mvccpb/kv.proto#L12-L29
-
-[etcdrpc]: ../etcdserver/etcdserverpb/rpc.proto
-
-[storagerpc]: ../mvcc/mvccpb/kv.proto
+[v3key]: ../api/mvccpb/kv.proto#L12-L29
+[etcdrpc]: ../api/etcdserverpb/rpc.proto
+[storagerpc]: ../api/mvccpb/kv.proto

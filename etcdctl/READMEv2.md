@@ -1,8 +1,8 @@
 etcdctl
 ========
 
-`etcdctl` is a command line client for [etcd][etcd]. It can be used in scripts or for administrators to explore an etcd
-cluster.
+`etcdctl` is a command line client for [etcd][etcd].
+It can be used in scripts or for administrators to explore an etcd cluster.
 
 ## Getting etcdctl
 
@@ -11,72 +11,59 @@ The latest release is available as a binary at [Github][github-release] along wi
 etcdctl can also be built from source using the build script found in the parent directory.
 
 ## Configuration
-
 ### --debug
-
 + output cURL commands which can be used to reproduce the request
 
 ### --no-sync
-
 + don't synchronize cluster information before sending request
 + Use this to access non-published client endpoints
 + Without this flag, values from `--endpoint` flag will be overwritten by etcd cluster when it does internal sync.
 
 ### --output, -o
-
 + output response in the given format (`simple`, `extended` or `json`)
 + default: `"simple"`
 
 ### --discovery-srv, -D
-
 + domain name to query for SRV records describing cluster endpoints
 + default: none
 + env variable: ETCDCTL_DISCOVERY_SRV
 
 ### --peers
-
 + a comma-delimited list of machine addresses in the cluster
 + default: `"http://127.0.0.1:2379"`
 + env variable: ETCDCTL_PEERS
 
 ### --endpoint
-
 + a comma-delimited list of machine addresses in the cluster
 + default: `"http://127.0.0.1:2379"`
 + env variable: ETCDCTL_ENDPOINT
 + Without `--no-sync` flag, this will be overwritten by etcd cluster when it does internal sync.
 
 ### --cert-file
-
 + identify HTTPS client using this SSL certificate file
 + default: none
 + env variable: ETCDCTL_CERT_FILE
 
 ### --key-file
-
 + identify HTTPS client using this SSL key file
 + default: none
 + env variable: ETCDCTL_KEY_FILE
 
 ### --ca-file
-
 + verify certificates of HTTPS-enabled servers using this CA bundle
 + default: none
 + env variable: ETCDCTL_CA_FILE
 
 ### --username, -u
-
 + provide username[:password] and prompt if password is not supplied
 + default: none
 + env variable: ETCDCTL_USERNAME
 
 ### --timeout
-
 + connection timeout per request
 + default: `"1s"`
 
 ### --total-timeout
-
 + timeout for the command execution (except watch)
 + default: `"5s"`
 
@@ -143,6 +130,7 @@ Create or update a directory called `/mydir`:
 ```sh
 $ etcdctl setdir /mydir
 ```
+
 
 ### Retrieving a key value
 
@@ -276,7 +264,6 @@ ETCD_WATCH_KEY=/foo/bar
 ```
 
 Continuously and recursively watch a key and exec a program:
-
 ```sh
 $ etcdctl exec-watch --recursive /foo -- sh -c "env | grep ETCD"
 ETCD_WATCH_ACTION=set
@@ -304,9 +291,7 @@ The following exit codes can be returned from etcdctl:
 
 ## Endpoint
 
-If the etcd cluster isn't available on `http://127.0.0.1:2379`, specify a `--endpoint` flag or `ETCDCTL_ENDPOINT`
-environment variable. One endpoint or a comma-separated list of endpoints can be listed. This option is ignored if
-the `--discovery-srv` option is provided.
+If the etcd cluster isn't available on `http://127.0.0.1:2379`, specify a `--endpoint` flag or `ETCDCTL_ENDPOINT` environment variable. One endpoint or a comma-separated list of endpoints can be listed. This option is ignored if the `--discovery-srv` option is provided.
 
 ```sh
 ETCDCTL_ENDPOINT="http://10.0.28.1:4002" etcdctl set my-key to-a-value
@@ -317,9 +302,7 @@ etcdctl --endpoint http://10.0.28.1:4002,http://10.0.28.2:4002,http://10.0.28.3:
 
 ## Username and Password
 
-If the etcd cluster is protected by [authentication][authentication], specify username and password using
-the [`--username`][username-flag] or `ETCDCTL_USERNAME` environment variable. When `--username` flag
-or `ETCDCTL_USERNAME` environment variable doesn't contain password, etcdctl will prompt password in interactive mode.
+If the etcd cluster is protected by [authentication][authentication], specify username and password using the [`--username`][username-flag] or `ETCDCTL_USERNAME` environment variable. When `--username` flag or `ETCDCTL_USERNAME` environment variable doesn't contain password, etcdctl will prompt password in interactive mode.
 
 ```sh
 ETCDCTL_USERNAME="root:password" etcdctl set my-key to-a-value
@@ -327,8 +310,7 @@ ETCDCTL_USERNAME="root:password" etcdctl set my-key to-a-value
 
 ## DNS Discovery
 
-To discover the etcd cluster through domain SRV records, specify a `--discovery-srv` flag or `ETCDCTL_DISCOVERY_SRV`
-environment variable. This option takes precedence over the `--endpoint` flag.
+To discover the etcd cluster through domain SRV records,  specify a `--discovery-srv` flag or `ETCDCTL_DISCOVERY_SRV` environment variable. This option takes precedence over the `--endpoint` flag.
 
 ```sh
 ETCDCTL_DISCOVERY_SRV="some-domain" etcdctl set my-key to-a-value
@@ -339,20 +321,16 @@ etcdctl --discovery-srv some-domain set my-key to-a-value
 
 ### Versioning
 
-etcdctl uses [semantic versioning][semver]. Releases will follow lockstep with the etcd release cycle.
+etcdctl uses [semantic versioning][semver].
+Releases will follow lockstep with the etcd release cycle.
 
 ### License
 
 etcdctl is under the Apache 2.0 license. See the [LICENSE][license] file for details.
 
-[authentication]: ../Documentation/v2/authentication.md
-
+[authentication]: https://github.com/etcd-io/website/blob/main/content/docs/v2/authentication.md
 [etcd]: https://github.com/coreos/etcd
-
 [github-release]: https://github.com/coreos/etcd/releases/
-
 [license]: ../LICENSE
-
 [semver]: http://semver.org/
-
 [username-flag]: #--username--u

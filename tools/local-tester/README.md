@@ -14,7 +14,7 @@ local-tester needs `etcd`, `benchmark`, and `bridge` binaries. To build these bi
 repository root:
 
 ```sh
-./build
+./build.sh
 pushd tools/benchmark/ && go build && popd
 pushd tools/local-tester/bridge && go build && popd
 ```
