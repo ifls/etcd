@@ -1,0 +1,18 @@
+.
+├── Documentation
+├── api    // etcd grpc api定义
+├── client // go 客户端 sdk
+├── contrib // raftexample 实现
+├── etcdctl // 命令行客户端实现
+├── etcdutl // 命令行 管理工具
+├── hack
+├── logos // logo 图
+├── pkg // 依赖的公共代码
+├── raft // raft算法模块
+├── scripts // 构建打包脚本
+├── security
+├── server // 服务器代码
+├── tests // 测试代码
+└── tools // 性能测试，备份db等客户端工具代码
+
+16 directories
