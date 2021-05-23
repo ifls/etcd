@@ -95,7 +95,7 @@ type backend struct {
 	mlock bool
 
 	mu sync.RWMutex
-	db *bolt.DB
+	db *bolt.DB // 数据库句柄
 
 	batchInterval time.Duration
 	batchLimit    int
@@ -243,7 +243,7 @@ func (b *backend) Snapshot() Snapshot {
 
 	b.mu.RLock()
 	defer b.mu.RUnlock()
-	tx, err := b.db.Begin(false)
+	tx, err := b.db.Begin(false) // 只读事务
 	if err != nil {
 		b.lg.Fatal("failed to begin tx", zap.Error(err))
 	}
@@ -559,6 +559,7 @@ func (b *backend) OpenReadTxN() int64 {
 	return atomic.LoadInt64(&b.openReadTxN)
 }
 
+// SnapShot 接口的实现， 其实就是 事务
 type snapshot struct {
 	*bolt.Tx
 	stopc chan struct{}

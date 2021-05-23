@@ -99,8 +99,10 @@ func (ms *maintenanceServer) Defragment(ctx context.Context, sr *pb.DefragmentRe
 // big enough size to hold >1 OS pages in the buffer
 const snapshotSendBufferSize = 32 * 1024
 
+// 流式 api
+// etcdcli snapshot save filename 会调用此接口， 客户端如果失败，会进行重试
 func (ms *maintenanceServer) Snapshot(sr *pb.SnapshotRequest, srv pb.Maintenance_SnapshotServer) error {
-	snap := ms.bg.Backend().Snapshot()
+	snap := ms.bg.Backend().Snapshot() //bolt db 提供了快照功能， 直接读取文件就可以
 	pr, pw := io.Pipe()
 
 	defer pr.Close()

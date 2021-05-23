@@ -57,6 +57,7 @@ type StoreConfig struct {
 	CompactionBatchLimit int
 }
 
+// 实现 kv接口
 type store struct {
 	ReadView
 	WriteView
@@ -165,6 +166,7 @@ func (s *store) Hash() (hash uint32, revision int64, err error) {
 	return h, s.currentRev, err
 }
 
+// 实现了 计算所有key的哈希值
 func (s *store) HashByRev(rev int64) (hash uint32, currentRev int64, compactRev int64, err error) {
 	start := time.Now()
 
@@ -186,6 +188,7 @@ func (s *store) HashByRev(rev int64) (hash uint32, currentRev int64, compactRev 
 	}
 	keep := s.kvindex.Keep(rev)
 
+	// 创建一个只读事务
 	tx := s.b.ReadTx()
 	tx.RLock()
 	defer tx.RUnlock()
@@ -193,9 +196,11 @@ func (s *store) HashByRev(rev int64) (hash uint32, currentRev int64, compactRev 
 
 	upper := revision{main: rev + 1}
 	lower := revision{main: compactRev + 1}
+	// 使用 crc32 循环校验码
 	h := crc32.New(crc32.MakeTable(crc32.Castagnoli))
 
 	h.Write(buckets.Key.Name())
+	// 遍历所有的key
 	err = tx.UnsafeForEach(buckets.Key, func(k, v []byte) error {
 		kr := bytesToRev(k)
 		if !upper.GreaterThan(kr) {
@@ -208,6 +213,7 @@ func (s *store) HashByRev(rev int64) (hash uint32, currentRev int64, compactRev 
 				return nil
 			}
 		}
+		// 写入kv 对的值
 		h.Write(k)
 		h.Write(v)
 		return nil
