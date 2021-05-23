@@ -404,7 +404,7 @@ message ResponseHeader {
 
 message RangeRequest {
   enum SortOrder {
-    NONE = 0; // default, no sorting
+    NONE = 0; // default, no sorting 不排序
     ASCEND = 1; // 升序 lowest target value first
     DESCEND = 2; // 降序 highest target value first
   }
@@ -416,7 +416,8 @@ message RangeRequest {
     VALUE = 4;
   }
 
-  // key is the first key for the range. If range_end is not given, the request only looks up key.
+  // key is the first key for the range.
+  // If range_end is not given, the request only looks up key. range_end 为空, 表明 只查一个 key
   bytes key = 1;
   // range_end is the upper bound on the requested range [key, range_end).
   // If range_end is '\0', the range is all keys >= key.
